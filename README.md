@@ -29,28 +29,27 @@ This repository contains the Frontend built using React and Tailwind CSS.
 
 ---------------------------------------------------------------------------------------------
 
-##  Project Structure
+## Project Structure
+
+```
 src/
-│
 ├── assets/
 ├── axios/
 ├── component/
 ├── context/
 ├── pages/
-│ ├── auth/
-│ ├── dashboard/
-│ ├── forum/
-│ ├── onboarding/
-│ ├── resource/
-│ └── ai/
-│
+│   ├── auth/
+│   ├── dashboard/
+│   ├── forum/
+│   ├── onboarding/
+│   ├── resource/
+│   └── ai/
 ├── routes/
-│ ├── ProtectedRoute.jsx
-│ └── PublicRoute.jsx
-│
+│   ├── ProtectedRoute.jsx
+│   └── PublicRoute.jsx
 ├── App.jsx
 └── main.jsx
-
+```
 ---------------------------------------------------------------------------------------------
 
 ##  Features:-
