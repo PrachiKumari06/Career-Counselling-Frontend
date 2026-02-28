@@ -116,10 +116,10 @@ Public Routes:
 ##  Deployment
 
 Frontend (Netlify):
- https://your-netlify-link.netlify.app
+ https://careerconnect-counselling.netlify.app
 
 Backend (Render):
- https://your-backend-link.onrender.com
+ https://careercounselling-backend.onrender.com
 
 ------------------------------------------------------------------------------------------
 ##  Screenshots
