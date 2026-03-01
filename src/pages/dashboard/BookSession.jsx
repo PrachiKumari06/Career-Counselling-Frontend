@@ -113,8 +113,6 @@ session_date: sessionDate?.toISOString(),
       </h2>
 
      <div className="relative mb-4">
-  <Calendar className="absolute left-3 top-3 text-white" size={18} />
-
   <DatePicker
     selected={sessionDate}
     onChange={(date) => setSessionDate(date)}
@@ -122,7 +120,12 @@ session_date: sessionDate?.toISOString(),
     timeIntervals={30}
     dateFormat="dd/MM/yyyy h:mm aa"
     placeholderText="Select date and time"
-    className="w-full pl-10 border p-2 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 cursor-pointer"
+    className="w-full border p-2 pr-10 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 cursor-pointer"
+  />
+
+  <Calendar
+    size={18}
+    className="absolute right-3 top-1/2 -translate-y-1/2 text-white pointer-events-none"
   />
 </div>
 
