@@ -3,8 +3,6 @@ import CounselorCard from "../../component/CounselorCard";
 import Axios from "../../axios/api.axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { Calendar } from "lucide-react";
 
 export default function BookSession() {
@@ -39,7 +37,7 @@ export default function BookSession() {
     });
     // to onclick on book session button
     const [selectedCounselor, setSelectedCounselor] = useState(null);
-const [sessionDate, setSessionDate] = useState(null);
+const [sessionDate, setSessionDate] = useState("");
 const handleBookSession = async () => {
   if (!sessionDate) {
     toast.error("Please select date and time");
@@ -49,7 +47,7 @@ const handleBookSession = async () => {
   try {
     await Axios.post("/session/book", {
       counselor_id: selectedCounselor,
-session_date: sessionDate?.toISOString(),
+      session_date: sessionDate,
     });
 
     toast.success("Session booked successfully!");
@@ -113,14 +111,11 @@ session_date: sessionDate?.toISOString(),
       </h2>
 
      <div className="relative mb-4">
-  <DatePicker
-    selected={sessionDate}
-    onChange={(date) => setSessionDate(date)}
-    showTimeSelect
-    timeIntervals={30}
-    dateFormat="dd/MM/yyyy h:mm aa"
-    placeholderText="Select date and time"
-    className="w-full border p-2 pr-10 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 cursor-pointer"
+  <input
+    type="datetime-local"
+    value={sessionDate}
+    onChange={(e) => setSessionDate(e.target.value)}
+    className="w-full border p-2 pr-10 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 transition duration-200 cursor-pointer"
   />
 
   <Calendar
