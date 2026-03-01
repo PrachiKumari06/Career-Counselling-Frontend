@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Notification from "./Notification";
 import {User} from "lucide-react"
 
-export default function Navbar({ matchingJobs = [], unreadCount = 0, onBellClick,userName="" }) {
+export default function Navbar({ userName="" }) {
     const navigate = useNavigate();
 
   const handleUpdateProfile = () => {

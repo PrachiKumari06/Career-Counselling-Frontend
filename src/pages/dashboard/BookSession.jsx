@@ -3,6 +3,7 @@ import CounselorCard from "../../component/CounselorCard";
 import Axios from "../../axios/api.axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import { Calendar } from "lucide-react";
 
 export default function BookSession() {
     const [counselors, setCounselors] = useState([]);
@@ -105,9 +106,10 @@ const handleBookSession = async () => {
       {selectedCounselor && (
 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
     <div className="bg-slate-800 border border-slate-300 p-6 rounded-xl w-96">
-      <h2 className="text-lg font-semibold mb-4 text-white">
-        Select Date & Time
-      </h2>
+    <h2 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
+  <Calendar className="text-white" size={20} />
+  Select Date & Time
+</h2>
 
       <input
         type="datetime-local"
@@ -119,14 +121,14 @@ const handleBookSession = async () => {
       <div className="flex justify-end gap-3">
         <button
           onClick={() => setSelectedCounselor(null)}
-          className="px-4 py-2 border  bg-slate-700 hover:bg-slate-600 text-white hover:translate-x-1 rounded"
+          className="px-4 py-2 border  bg-slate-700 hover:bg-slate-600 text-white hover:translate-x-1 rounded cursor-pointer"
         >
           Cancel
         </button>
 
         <button
           onClick={handleBookSession}
-          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white hover:translate-x-1 rounded border"
+          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white hover:translate-x-1 rounded border cursor-pointer"
         >
           Confirm
         </button>
