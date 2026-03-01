@@ -3,6 +3,8 @@ import CounselorCard from "../../component/CounselorCard";
 import Axios from "../../axios/api.axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { Calendar } from "lucide-react";
 
 export default function BookSession() {
@@ -37,7 +39,7 @@ export default function BookSession() {
     });
     // to onclick on book session button
     const [selectedCounselor, setSelectedCounselor] = useState(null);
-const [sessionDate, setSessionDate] = useState("");
+const [sessionDate, setSessionDate] = useState(null);
 const handleBookSession = async () => {
   if (!sessionDate) {
     toast.error("Please select date and time");
@@ -47,7 +49,7 @@ const handleBookSession = async () => {
   try {
     await Axios.post("/session/book", {
       counselor_id: selectedCounselor,
-      session_date: sessionDate,
+session_date: sessionDate?.toISOString(),
     });
 
     toast.success("Session booked successfully!");
@@ -106,17 +108,23 @@ const handleBookSession = async () => {
       {selectedCounselor && (
 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
     <div className="bg-slate-800 border border-slate-300 p-6 rounded-xl w-96">
-    <h2 className="text-lg font-semibold mb-4 text-white flex items-center gap-2">
-  <Calendar className="text-white" size={20} />
-  Select Date & Time
-</h2>
+      <h2 className="text-lg font-semibold mb-4 text-white">
+        Select Date & Time
+      </h2>
 
-      <input
-        type="datetime-local"
-        value={sessionDate}
-        onChange={(e) => setSessionDate(e.target.value)}
-        className="w-full border p-2 rounded mb-4 text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent transition duration-200"
-      />
+     <div className="relative mb-4">
+  <Calendar className="absolute left-3 top-3 text-white" size={18} />
+
+  <DatePicker
+    selected={sessionDate}
+    onChange={(date) => setSessionDate(date)}
+    showTimeSelect
+    timeIntervals={30}
+    dateFormat="dd/MM/yyyy h:mm aa"
+    placeholderText="Select date and time"
+    className="w-full pl-10 border p-2 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 cursor-pointer"
+  />
+</div>
 
       <div className="flex justify-end gap-3">
         <button
