@@ -116,7 +116,7 @@ Public Routes:
 ##  Deployment
 
 Frontend (Netlify):
- https://careerconnect-counselling.netlify.app
+ https://careerconnect-counselling-frontend.vercel.app
 
 Backend (Render):
  https://careercounselling-backend.onrender.com
