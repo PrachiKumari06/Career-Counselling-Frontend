@@ -29,3 +29,8 @@
   animation: ring 1s infinite;
   transform-origin: top center;
 }
+/* calender of browser will hide and lucid will show in booksession  */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}

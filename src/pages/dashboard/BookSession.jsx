@@ -1,14 +1,13 @@
 import React from "react";
 import CounselorCard from "../../component/CounselorCard";
 import Axios from "../../axios/api.axios";
-import { useEffect, useState,useRef } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Calendar } from "lucide-react";
 
 export default function BookSession() {
     const [counselors, setCounselors] = useState([]);
       const [search, setSearch] = useState("");
-      const inputRef = useRef(null);
      useEffect(() => {
       fetchCounselors();
     }, []);
@@ -113,18 +112,15 @@ const handleBookSession = async () => {
 
      <div className="relative mb-4">
   <input
-    ref={inputRef}
     type="datetime-local"
     value={sessionDate}
     onChange={(e) => setSessionDate(e.target.value)}
-    readOnly
-    className="w-full border p-2 pr-10 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950"
+    className="w-full border p-2 pr-10 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 transition duration-200 cursor-pointer"
   />
 
   <Calendar
     size={18}
-    className="absolute right-3 top-1/2 -translate-y-1/2 text-white cursor-pointer"
-    onClick={() => inputRef.current?.showPicker()}
+    className="absolute right-3 top-1/2 -translate-y-1/2 text-white pointer-events-none"
   />
 </div>
 
