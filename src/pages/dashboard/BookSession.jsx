@@ -51,7 +51,7 @@ const handleBookSession = async () => {
       session_date: sessionDate,
     });
 
-    toast.success("Session booked successfully!");
+    toast.success("Session booked successfully! Check your mail");
     setSelectedCounselor(null);
     setSessionDate("");
 
