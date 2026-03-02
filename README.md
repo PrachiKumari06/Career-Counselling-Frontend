@@ -25,7 +25,7 @@ This repository contains the Frontend built using React and Tailwind CSS.
 -  JWT Authentication
 -  React Router DOM
 -  React Hot Toast
--  Lucide Icons
+-  Lucide Icons , React-typed
 
 ---------------------------------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ Public Routes:
 
 ##  Deployment
 
-Frontend (Netlify):
+Frontend (vercel):
  https://careerconnect-counselling-frontend.vercel.app
 
 Backend (Render):
@@ -162,7 +162,7 @@ Backend (Render):
 
 --------------------------------------------------------------------------------------------------
 ## Video Walkthrough Link
-Link : https://drive.google.com/file/d/14JgBlLZ-2CqjMI76et8ITGmlXVdjzYtG/view?usp=sharing
+Link : https://drive.google.com/file/d/1eQvgmmMXqBqQfcynN4RkyMJgcxcwugWu/view?usp=sharing
 
 --------------------------------------------------------------------------------------------------
 ##  Installation & Setup
