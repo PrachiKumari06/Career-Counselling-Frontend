@@ -130,15 +130,19 @@ console.log("Backend response:", res.data);
   </div>
 
   {/* Mobile Search */}
-  <div className="mt-4 md:hidden">
-    <input
-      type="text"
-      placeholder="Search by skill or specialization..."
-      onChange={(e) => setSearch(e.target.value)}
-      className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950 transition"
-    />
-  </div>
+  <div className="relative mt-4 md:hidden">
+  <Search
+    size={16}
+    className="absolute left-3 top-3 text-gray-400"
+  />
 
+  <input
+    type="text"
+    placeholder="Search by skill or specialization..."
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950 transition"
+  />
+</div>
 </div>
 {/* if no counselor found than this by using terniary operator here  */}
       {filteredCounselors.length === 0 ? (
