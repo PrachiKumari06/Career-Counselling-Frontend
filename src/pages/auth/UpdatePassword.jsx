@@ -10,7 +10,7 @@ export default function UpdatePassword() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Extract token from URL hash
+  //  Extract token from URL hash
   const hash = window.location.hash;
   const params = new URLSearchParams(hash.substring(1));
   const access_token = params.get("access_token");

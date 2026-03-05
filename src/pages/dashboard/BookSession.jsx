@@ -40,20 +40,54 @@ export default function BookSession() {
     const [selectedCounselor, setSelectedCounselor] = useState(null);
 const [sessionDate, setSessionDate] = useState("");
 const handleBookSession = async () => {
+
   if (!sessionDate) {
     toast.error("Please select date and time");
     return;
   }
 
   try {
-    await Axios.post("/session/book", {
+
+    const res = await Axios.post("/session/book", {
       counselor_id: selectedCounselor,
-      session_date: sessionDate,
+      session_date: sessionDate
     });
 
-    toast.success("Session booked successfully! Check your mail");
-    setSelectedCounselor(null);
-    setSessionDate("");
+console.log("Backend response:", res.data);
+    // FREE SESSION
+    if (!res.data.paymentRequired) {
+      toast.success("Session booked successfully, check your mail!");
+      setSelectedCounselor(null);
+      setSessionDate("");
+      return;
+    }
+
+    // PAYMENT REQUIRED
+    const order = res.data.order;
+
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY,
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.id,
+
+      handler: async function (response) {
+
+        await Axios.post("/payment/verify", {
+          ...response,
+          counselor_id: selectedCounselor,
+          session_date: sessionDate
+        });
+
+        toast.success("Payment successful. Session booked!");
+
+        setSelectedCounselor(null);
+        setSessionDate("");
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
 
   } catch (error) {
     toast.error(error.response?.data?.error || "Something went wrong");

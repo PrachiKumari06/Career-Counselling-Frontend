@@ -2,7 +2,7 @@ import axios from "axios";
 
 const Axios = axios.create({
 baseURL:`${import.meta.env.VITE_API_URL}/api`,
-   //baseURL:"http://localhost:4000/api"    //this is when i did localhost in my browser
+  // baseURL:"http://localhost:4000/api"    //this is when i did localhost in my browser
   // baseURL: "http://192.168.1.8:Port of backend/api",  //whene run on phone and desktop both 
 });
 

@@ -5,21 +5,13 @@ import {toast} from "react-hot-toast";
 import { useLocation } from "react-router-dom";
 
 export default function Jobs() {
-
-  // ==============================
-  // STATE MANAGEMENT
-  // ==============================
-
-  // All jobs from database
+// All jobs from database
   const [jobs, setJobs] = useState([]);
-
   // Search filters
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
-
   // Track which jobs user already applied to
   const [appliedJobs, setAppliedJobs] = useState([]);
-
   // Store resume file per job (jobId => file)
   const [resumeFiles, setResumeFiles] = useState({});
 
@@ -30,20 +22,14 @@ export default function Jobs() {
 const locationHook = useLocation();
 const queryParams = new URLSearchParams(locationHook.search);
 const highlightId = queryParams.get("highlight");
-  // ==============================
-  // FETCH DATA ON LOAD
-  // ==============================
-
-  useEffect(() => {
+ 
+// fetch data
+useEffect(() => {
     fetchJobs();
     fetchAppliedJobs();
   }, []);
 
-
-  // ==============================
-  // FETCH ALL JOBS
-  // ==============================
-
+//fetch all jobs
   const fetchJobs = async () => {
     try {
       const res = await Axios.get("/jobs");
@@ -55,12 +41,7 @@ const highlightId = queryParams.get("highlight");
     }
   };
 
-
-  // ==============================
-  // FETCH APPLIED JOBS
-  // So Apply button remains disabled after refresh
-  // ==============================
-
+//FETCH APPLIED JOBS----> So Apply button remains disabled after refresh
   const fetchAppliedJobs = async () => {
     try {
       const res = await Axios.get("/jobs/my-applications");
@@ -74,12 +55,7 @@ const highlightId = queryParams.get("highlight");
       console.log("Error fetching applied jobs:", error);
     }
   };
-
-
-  // ==============================
-  // APPLY TO JOB
-  // ==============================
-
+//apply to job
   const apply = async (jobId) => {
 
     // Get resume selected for this specific job
@@ -115,12 +91,7 @@ const highlightId = queryParams.get("highlight");
       toast.error(error.response?.data?.error || "Failed to apply");
     }
   };
-
-
-  // ==============================
-  // FILTER JOBS BASED ON SEARCH
-  // ==============================
-
+//filter job based on search
   const filteredJobs = jobs.filter(
     (job) =>
       job.title.toLowerCase().includes(search.toLowerCase()) &&
@@ -128,18 +99,12 @@ const highlightId = queryParams.get("highlight");
   );
 
 
-  // ==============================
-  // UI
-  // ==============================
-
   return (
 <div className="flex bg-slate-100 min-h-screen overflow-x-hidden">
         <Sidebar />
 
 <div className="flex-1 md:ml-64 pt-16 md:pt-6 px-4 md:px-6 pb-6">
-      {/* ==============================
-    HEADER + SEARCH SECTION
-============================== */}
+      {/* HEADER + SEARCH SECTION*/}
 <div className="mb-6">
 
   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -170,23 +135,17 @@ const highlightId = queryParams.get("highlight");
   </div>
 </div>
 
-        {/* ==============================
-            LOADING STATE
-        ============================== */}
+        {/* LOADING STATE*/}
         {loading && (
           <p className="text-gray-600">Loading jobs...</p>
         )}
 
-        {/* ==============================
-            EMPTY STATE
-        ============================== */}
+        {/*EMPTY STATE*/}
         {!loading && filteredJobs.length === 0 && (
           <p className="text-gray-500">No jobs found.</p>
         )}
 
-        {/* ==============================
-            JOB CARDS
-        ============================== */}
+        {/*JOB CARDS*/}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
           {filteredJobs.map((job) => (
@@ -218,9 +177,7 @@ const highlightId = queryParams.get("highlight");
                 {job.salary}
               </p>
 
-              {/* ==============================
-                  RESUME UPLOAD (PER JOB)
-              ============================== */}
+              {/*RESUME UPLOAD (PER JOB)*/}
               <input
                 key={appliedJobs.includes(job.id) ? "applied" : job.id}
                 type="file"
@@ -241,9 +198,7 @@ className="mt-3 text-sm w-full"
                 </p>
               )}
 
-              {/* ==============================
-                  APPLY BUTTON
-              ============================== */}
+              {/*APPLY BUTTON*/}
               <button
                 onClick={() => apply(job.id)}
                 disabled={appliedJobs.includes(job.id)}
