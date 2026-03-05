@@ -52,56 +52,43 @@ Plz book a session with our expert counselors to get personalized career guidanc
             const counselor = s.profiles?.career_profiles?.[0];
 
         return (
-          <div key={s.id} className="bg-white p-6 rounded-xl shadow-md mb-6">
+         <div key={s.id} className="bg-white p-6 rounded-xl shadow-md mb-6">
 
-            {/* Counselor Name */}
-            {counselor?.full_name && (
-              <p>
-                <strong>Counselor:</strong> {counselor.full_name}
-              </p>
-            )}
+  {/* Top Row */}
+  <div className="flex justify-between items-center mb-2">
+    <h3 className="font-semibold text-gray-800">
+      {counselor?.full_name}
+    </h3>
 
-            {/* Session Date */}
-            <p>
-              <strong>Date:</strong>{" "}
-              {new Date(s.session_date).toLocaleString()}
-            </p>
+    <span
+      className={`text-xs px-3 py-1 rounded-full font-semibold
+        ${s.status === "approved" ? "bg-green-100 text-green-700" :
+        s.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+        s.status === "rejected" ? "bg-red-100 text-red-700" :
+        "bg-gray-100 text-gray-700"}`}
+    >
+      {s.status}
+    </span>
+  </div>
 
-            {/* Session Status with color */}
-            <p>
-              <strong>Status:</strong>{" "}
-              <span
-                className={
-                  s.status === "approved"
-                    ? "text-green-600 font-semibold"
-                    : s.status === "pending"
-                    ? "text-yellow-600 font-semibold"
-                    : s.status === "rejected"
-                    ? "text-red-600 font-semibold"
-                    : "text-gray-600 font-semibold"
-                }
-              >
-                {s.status}
-              </span>
-            </p>
+  {/* Date */}
+  <p className="text-sm text-gray-600 mb-3">
+    {new Date(s.session_date).toLocaleString()}
+  </p>
 
-            {/* Show meeting link only if approved */}
-            {s.status === "approved" && s.meeting_link && (
-              <p className="mt-2">
-                <strong>Meeting Link:</strong>{" "}
-                <a
-                  href={s.meeting_link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  Join Session
-                </a>
-              </p>
-            )}
+  {/* Join Button */}
+  {s.status === "approved" && s.meeting_link && (
+    <a
+      href={s.meeting_link}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-block bg-slate-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-slate-600"
+    >
+      Join Session
+    </a>
+  )}
 
-        
-          </div>
+</div>
         );
       })}
     </div>
