@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import Axios from "../../axios/api.axios";
+import { User, Calendar, Video } from "lucide-react";
+
 
 export default function MySessions() {
   // Store all sessions of logged-in student
@@ -48,34 +50,50 @@ Plz book a session with our expert counselors to get personalized career guidanc
 )}
 
       {/* Loop through all sessions */}
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
   {activeSessions.map((s) => {
                 const counselor = s.profiles?.career_profiles?.[0];
 
         return (
-         <div key={s.id} className="bg-white p-6 rounded-xl shadow-md mb-6">
+         <div key={s.id} className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition">
 
   {/* Top Row */}
-  <div className="flex justify-between items-center mb-2">
-    <h3 className="font-semibold text-gray-800">
-      Counselor :{counselor?.full_name}
-    </h3>
+   <div className="flex justify-between items-center mb-3">
 
-    <span
-      className={`text-xs px-3 py-1 rounded-full font-semibold
-        ${s.status === "approved" ? "bg-green-100 text-green-700" :
-        s.status === "pending" ? "bg-yellow-100 text-yellow-700" :
-        s.status === "rejected" ? "bg-red-100 text-red-700" :
-        "bg-gray-100 text-gray-700"}`}
-    >
-      {s.status}
-    </span>
-  </div>
+                <div className="flex items-center gap-2 text-gray-800">
+                  <User size={18} />
+                  <span>
+                    <span className="font-semibold">Counselor:</span>{" "}
+                    {counselor?.full_name}
+                  </span>
+                </div>
+
+                <span
+                  className={`text-xs px-3 py-1 rounded-full font-semibold
+                    ${
+                      s.status === "approved"
+                        ? "bg-green-100 text-green-700"
+                        : s.status === "pending"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
+                >
+                  {s.status}
+                </span>
+
+              </div>
 
   {/* Date */}
-  <p className="text-sm text-gray-600 mb-3">
-    Date : {new Date(s.session_date).toLocaleString()}
-  </p>
+   <div className="flex items-center gap-2 text-gray-600 mb-4">
+                <Calendar size={16} />
+                <span>
+                  <span className="font-semibold text-gray-700">Date:</span>{" "}
+                  {new Date(s.session_date).toLocaleString("en-IN", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </span>
+              </div>
 
   {/* Join Button */}
   {s.status === "approved" && s.meeting_link && (
@@ -83,11 +101,12 @@ Plz book a session with our expert counselors to get personalized career guidanc
       href={s.meeting_link}
       target="_blank"
       rel="noreferrer"
-      className="inline-block bg-slate-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-slate-600"
+      className="inline-flex items-center gap-2 bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-600 transition"
     >
-      Join Session
-    </a>
-  )}
+    <Video size={16} />
+                  Join Session
+                </a>
+              )}
 
 </div>
         );
