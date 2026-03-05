@@ -3,7 +3,7 @@ import CounselorCard from "../../component/CounselorCard";
 import Axios from "../../axios/api.axios";
 import { useEffect, useState,useRef } from "react";
 import { toast } from "react-hot-toast";
-import { Calendar } from "lucide-react";
+import { Calendar,Search } from "lucide-react";
 
 export default function BookSession() {
   const inputRef = useRef(null);
@@ -113,12 +113,16 @@ console.log("Backend response:", res.data);
       Book a Session
     </h2>
 
-    <input
-      type="text"
-      placeholder="Search by skill or specialization..."
-      onChange={(e) => setSearch(e.target.value)}
-      className="w-64 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950 transition"
-    />
+    <div className="relative w-64">
+  <Search size={16} className="absolute left-3 top-3 text-gray-400"/>
+ <input
+  type="text"
+  placeholder="Search by skill and specialization..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="w-full pl-9 pr-4 py-2 border rounded-lg"
+/>
+</div>
   </div>
 
   {/* Mobile Search */}
@@ -140,7 +144,7 @@ console.log("Backend response:", res.data);
       {/* when click on book session button, show modal or form to set session date */}
       {selectedCounselor && (
 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
-    <div className="bg-slate-800 border border-slate-300 p-6 rounded-xl w-96">
+    <div className="bg-slate-800 border border-slate-300 p-6 rounded-xl w-[90%] max-w-md">
       <h2 className="text-lg font-semibold mb-4 text-white">
         Select Date & Time
       </h2>

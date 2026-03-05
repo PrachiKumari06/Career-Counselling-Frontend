@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Axios from "../../axios/api.axios";
-import { User, Calendar, Video } from "lucide-react";
+import { User, Calendar, Video,Clock } from "lucide-react";
 
 
 export default function MySessions() {
@@ -25,29 +25,17 @@ const activeSessions = sessions.filter(
   (s) => s.status !== "cancelled" && s.status !== "rejected"
 );
   return (
-<div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-  {/* Section Header */}
-<div className="mb-8">
-
-  {/* Mobile Header */}
-  <div className="flex items-center gap-3 md:hidden">
-    <h2 className="text-lg font-semibold text-slate-800 whitespace-nowrap">
-      My Sessions
-    </h2>
-    <div className="flex-1 h-[1px] bg-slate-300"></div>
-  </div>
-
-  {/* Desktop Header */}
-  <h2 className="hidden md:block text-xl font-semibold text-slate-800">
+<div className="mt-10">
+    {/* Section Header */}
+<div className="mb-6">
+  <h2 className="text-xl font-semibold text-slate-800">
     My Sessions
   </h2>
-
-  {/* Description */}
   <p className="text-sm text-gray-500 mt-1">
     Track your upcoming counseling sessions and join them when approved.
   </p>
-
 </div>
+ 
 {activeSessions.length === 0 && (
  <p className="text-gray-600">
 Book a session with one of our expert counselors to get personalized career guidance. 
@@ -61,33 +49,42 @@ Your sessions will appear here once booked.
                 const counselor = s.profiles?.career_profiles?.[0];
 
         return (
-         <div key={s.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition duration-200">
-
+         <div key={s.id} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg border border-gray-100 hover:-translate-y-1 transition duration-200">
   {/* Top Row */}
    <div className="flex justify-between items-start mb-3">
 
-                <div className="flex items-center gap-2 text-gray-800">
-                  <User size={18} />
-                  <span>
-                    <span className="font-semibold">Counselor:</span>{" "}
-                    {counselor?.full_name}
-                  </span>
-                </div>
+  <div className="flex items-center gap-2 text-gray-800">
+    <User size={18} />
+    <span>
+      <span className="font-semibold">Counselor:</span>{" "}
+      {counselor?.full_name}
+    </span>
+  </div>
 
-                <span
-                  className={`text-xs px-3 py-1 rounded-full font-semibold
-                    ${
-                      s.status === "approved"
-                        ? "bg-green-100 text-green-700"
-                        : s.status === "pending"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                >
-{s.status.charAt(0).toUpperCase() + s.status.slice(1)}   {/*like in starting i do : s.status ->so approved now Approved */}
-                </span>
+  <div className="flex gap-2">
 
-              </div>
+    <span
+      className={`text-xs px-3 py-1 rounded-full font-semibold
+        ${
+          s.status === "approved"
+            ? "bg-green-100 text-green-700"
+            : s.status === "pending"
+            ? "bg-yellow-100 text-yellow-700"
+            : "bg-gray-100 text-gray-700"
+        }`}
+    >
+      {s.status.charAt(0).toUpperCase() + s.status.slice(1)}
+    </span>
+
+    {s.status === "approved" && (
+      <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-md">
+        Upcoming
+      </span>
+    )}
+
+  </div>
+
+</div>
 
   {/* Date */}
    <div className="flex items-center gap-2 text-gray-600 mb-4">
@@ -115,8 +112,9 @@ Your sessions will appear here once booked.
               )}
   {/* if session is not appreved yet */}
   {s.status === "pending" && (
-  <p className="text-xs text-gray-500 mt-2">Waiting for counselor approval</p>
-)}
+<p className="text-xs text-yellow-700 bg-yellow-50 px-2 py-1 rounded-md mt-3 inline-flex items-center gap-1">  <Clock size={14} />
+  Waiting for counselor approval
+</p>)}
 
 </div>
         );
