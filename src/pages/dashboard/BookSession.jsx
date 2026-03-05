@@ -140,11 +140,21 @@ console.log("Backend response:", res.data);
   </div>
 
 </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredCounselors.map((c) => (
-          <CounselorCard key={c.id} counselor={c} onBook={setSelectedCounselor} />
-        ))}
-      </div>
+{/* if no counselor found than this by using terniary operator here  */}
+      {filteredCounselors.length === 0 ? (
+  <div className="text-center py-12 text-gray-500">
+    <p className="text-lg font-medium">No counselors found</p>
+    <p className="text-sm mt-1">
+      Try searching with a different skill or specialization.
+    </p>
+  </div>
+) : (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {filteredCounselors.map((c) => (
+      <CounselorCard key={c.id} counselor={c} onBook={setSelectedCounselor} />
+    ))}
+  </div>
+)}
       {/* when click on book session button, show modal or form to set session date */}
       {selectedCounselor && (
 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
