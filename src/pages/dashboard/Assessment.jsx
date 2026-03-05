@@ -307,9 +307,10 @@ useEffect(() => {
 
               <div className="flex flex-col items-end">
                 {timeLeft <= 30 && timeLeft > 0 && (
-                  <p className="bg-red-500/10 text-red-400 px-2 py-1 rounded text-xs mb-1">
-                    Hurry up! Less than 30 seconds remaining.
-                  </p>
+                <p className="bg-red-500/10 text-red-400 px-2 py-1 rounded text-xs mb-1">
+  <span className="md:hidden">Less than 30s left!</span>
+  <span className="hidden md:inline">Hurry up! Less than 30 seconds remaining.</span>
+</p>
                 )}
                 <div
                   className={`flex items-center gap-2 font-medium ${
