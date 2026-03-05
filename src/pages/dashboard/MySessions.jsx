@@ -48,8 +48,9 @@ Plz book a session with our expert counselors to get personalized career guidanc
 )}
 
       {/* Loop through all sessions */}
-{activeSessions.map((s) => {
-            const counselor = s.profiles?.career_profiles?.[0];
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {activeSessions.map((s) => {
+                const counselor = s.profiles?.career_profiles?.[0];
 
         return (
          <div key={s.id} className="bg-white p-6 rounded-xl shadow-md mb-6">
@@ -57,7 +58,7 @@ Plz book a session with our expert counselors to get personalized career guidanc
   {/* Top Row */}
   <div className="flex justify-between items-center mb-2">
     <h3 className="font-semibold text-gray-800">
-      {counselor?.full_name}
+      Counselor :{counselor?.full_name}
     </h3>
 
     <span
@@ -73,7 +74,7 @@ Plz book a session with our expert counselors to get personalized career guidanc
 
   {/* Date */}
   <p className="text-sm text-gray-600 mb-3">
-    {new Date(s.session_date).toLocaleString()}
+    Date : {new Date(s.session_date).toLocaleString()}
   </p>
 
   {/* Join Button */}
@@ -91,6 +92,9 @@ Plz book a session with our expert counselors to get personalized career guidanc
 </div>
         );
       })}
+
+</div>
+
     </div>
   );
 }
