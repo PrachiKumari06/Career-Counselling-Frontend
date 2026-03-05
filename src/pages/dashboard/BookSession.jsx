@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { Calendar,Search } from "lucide-react";
 
 export default function BookSession() {
+  const [loading, setLoading] = useState(false);  //as double booking when i click Confirm multiple times quickly
   const inputRef = useRef(null);
     const [counselors, setCounselors] = useState([]);
       const [search, setSearch] = useState("");
@@ -40,6 +41,7 @@ export default function BookSession() {
     const [selectedCounselor, setSelectedCounselor] = useState(null);
 const [sessionDate, setSessionDate] = useState("");
 const handleBookSession = async () => {
+if (loading) return;
 
   if (!sessionDate) {
     toast.error("Please select date and time");
@@ -47,11 +49,11 @@ const handleBookSession = async () => {
   }
 
   try {
-
-    const res = await Axios.post("/session/book", {
-      counselor_id: selectedCounselor,
-      session_date: sessionDate
-    });
+    setLoading(true);
+  const res = await Axios.post("/session/book", {
+    counselor_id: selectedCounselor,
+    session_date: sessionDate
+  });
 
 console.log("Backend response:", res.data);
     // FREE SESSION
@@ -59,6 +61,7 @@ console.log("Backend response:", res.data);
       toast.success("Session booked successfully, check your mail!");
       setSelectedCounselor(null);
       setSessionDate("");
+      setLoading(false);   
       return;
     }
 
@@ -83,6 +86,7 @@ console.log("Backend response:", res.data);
 
         setSelectedCounselor(null);
         setSessionDate("");
+        setLoading(false);
       }
     };
 
@@ -90,7 +94,9 @@ console.log("Backend response:", res.data);
     rzp.open();
 
   } catch (error) {
+    setLoading(false);
     toast.error(error.response?.data?.error || "Something went wrong");
+    
   }
 };
   return (
@@ -112,17 +118,15 @@ console.log("Backend response:", res.data);
     <h2 className="text-xl font-semibold text-slate-800">
       Book a Session
     </h2>
-
-    <div className="relative w-64">
+<div className="relative w-72">
   <Search size={16} className="absolute left-3 top-3 text-gray-400"/>
- <input
-  type="text"
-  placeholder="Search by skill and specialization..."
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  className="w-full pl-9 pr-4 py-2 border rounded-lg"
-/>
-</div>
+    <input
+      type="text"
+      placeholder="Search by skill or specialization..."
+      onChange={(e) => setSearch(e.target.value)}
+  className="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950 transition"
+    />
+    </div>
   </div>
 
   {/* Mobile Search */}
@@ -167,17 +171,17 @@ console.log("Backend response:", res.data);
       <div className="flex justify-end gap-3">
         <button
           onClick={() => setSelectedCounselor(null)}
-          className="px-4 py-2 border  bg-slate-700 hover:bg-slate-600 text-white hover:translate-x-1 rounded cursor-pointer"
-        >
+className="px-4 py-2 border bg-slate-700 hover:bg-slate-600 text-white hover:-translate-y-0.5 transition rounded cursor-pointer"        >
           Cancel
         </button>
 
         <button
-          onClick={handleBookSession}
-          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white hover:translate-x-1 rounded border cursor-pointer"
-        >
-          Confirm
-        </button>
+  disabled={loading}
+  onClick={handleBookSession}
+  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded border cursor-pointer disabled:opacity-50"
+>
+  {loading ? "Booking..." : "Confirm"}
+</button>
       </div>
     </div>
   </div>
