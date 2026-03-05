@@ -143,10 +143,7 @@ useEffect(() => {
     audio.play().catch(() => {});
   }
 
-  // When time ends
-  if (timeLeft === 0) {
-    setShowTimeoutModal(true);
-  }
+ 
 
 }, [timeLeft, result, audio]);
 
@@ -310,7 +307,7 @@ useEffect(() => {
 
               <div className="flex flex-col items-end">
                 {timeLeft <= 30 && timeLeft > 0 && (
-                  <p className="text-red-400 text-xs mb-1">
+                  <p className="bg-red-500/10 text-red-400 px-2 py-1 rounded text-xs mb-1">
                     Hurry up! Less than 30 seconds remaining.
                   </p>
                 )}
@@ -327,7 +324,7 @@ useEffect(() => {
 
             <div className="w-full bg-slate-700 rounded-full h-2 mb-6">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all"
+                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -343,7 +340,7 @@ useEffect(() => {
                   className={`block p-3 rounded-lg cursor-pointer border transition ${
                     answers[step]?.label === option.label
                       ? "bg-slate-700 border-blue-500"
-                      : "bg-slate-900 border-slate-600"
+                      :  "bg-slate-900 border-slate-600 hover:bg-slate-800"
                   }`}
                 >
                   <input
@@ -351,7 +348,7 @@ useEffect(() => {
                     name={`question-${step}`}
                     checked={answers[step]?.label === option.label}
                     onChange={() => handleSelect(option)}
-                    className="mr-2"
+                   className="mr-2 accent-blue-500"
                   />
                   {option.label}
                 </label>
