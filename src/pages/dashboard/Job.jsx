@@ -3,10 +3,13 @@ import Axios from "../../axios/api.axios";
 import Sidebar from "../../component/Sidebar";
 import {toast} from "react-hot-toast";
 import { useLocation } from "react-router-dom";
+import { Briefcase, IndianRupee, CalendarDays,Upload,MapPin,Check,ArrowBigRightDash } from "lucide-react";
 
 export default function Jobs() {
 // All jobs from database
   const [jobs, setJobs] = useState([]);
+  const [tab, setTab] = useState("all"); 
+const [selectedJob, setSelectedJob] = useState(null);  //model 
   // Search filters
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
@@ -14,7 +17,7 @@ export default function Jobs() {
   const [appliedJobs, setAppliedJobs] = useState([]);
   // Store resume file per job (jobId => file)
   const [resumeFiles, setResumeFiles] = useState({});
-
+const [uploadMode, setUploadMode] = useState({});
   // Loading state
   const [loading, setLoading] = useState(true);
 
@@ -32,7 +35,7 @@ useEffect(() => {
 //fetch all jobs
   const fetchJobs = async () => {
     try {
-      const res = await Axios.get("/jobs");
+      const res = await Axios.get("/jobs/recommended");
       setJobs(res.data);
     } catch (error) {
       console.log("Error fetching jobs:", error);
@@ -43,18 +46,24 @@ useEffect(() => {
 
 //FETCH APPLIED JOBS----> So Apply button remains disabled after refresh
   const fetchAppliedJobs = async () => {
-    try {
-      const res = await Axios.get("/jobs/my-applications");
+  try {
+    const res = await Axios.get("/jobs/my-applications");
 
-      // Extract job IDs
-      const appliedJobIds = res.data.map((app) => app.jobs.id);
+    const appliedIds = [];
+    const resumeMap = {};
 
-      setAppliedJobs(appliedJobIds);
+    res.data.forEach((app) => {
+      appliedIds.push(app.jobs.id);
+      resumeMap[app.jobs.id] = app.resume_url;
+    });
 
-    } catch (error) {
-      console.log("Error fetching applied jobs:", error);
-    }
-  };
+    setAppliedJobs(appliedIds);   // ✅ IMPORTANT
+    setResumeFiles(resumeMap);    // ✅ for preview
+
+  } catch (error) {
+    console.log("Error fetching applied jobs:", error);
+  }
+};
 //apply to job
   const apply = async (jobId) => {
 
@@ -86,19 +95,39 @@ useEffect(() => {
         delete updated[jobId];
         return updated;
       });
-
+console.log(resumeFiles[jobId]);
     } catch (error) {
       toast.error(error.response?.data?.error || "Failed to apply");
     }
   };
 //filter job based on search
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.title.toLowerCase().includes(search.toLowerCase()) &&
-      job.location.toLowerCase().includes(location.toLowerCase())
-  );
+  const filteredJobs = jobs.filter((job) => {
+  const isExpired = new Date(job.expiry_date) < new Date();
+  const isApplied = appliedJobs.includes(job.id);
 
+  // TAB FILTER
+  if (tab === "active" && isExpired) return false;
+  if (tab === "closed" && !isExpired) return false;
+  if (tab === "applied" && !isApplied) return false;
 
+  // SEARCH FILTER
+  if (
+    !job.title.toLowerCase().includes(search.toLowerCase()) ||
+    !job.location.toLowerCase().includes(location.toLowerCase())
+  ) {
+    return false;
+  }
+
+  return true;
+});
+const getDaysAgo = (date) => {
+  const diff = new Date() - new Date(date);
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+};
+const getDaysLeft = (date) => {
+  const diff = new Date(date) - new Date();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+};
   return (
 <div className="flex bg-slate-100 min-h-screen overflow-x-hidden">
         <Sidebar />
@@ -134,6 +163,21 @@ useEffect(() => {
     </div>
   </div>
 </div>
+<div className="flex gap-4 mb-6 text-sm font-medium">
+  {["all", "active", "closed", "applied"].map((t) => (
+    <button
+      key={t}
+      onClick={() => setTab(t)}
+      className={`px-3 py-1 rounded capitalize ${
+        tab === t
+          ? "bg-slate-800 text-white"
+          : "bg-gray-200 text-gray-700"
+      }`}
+    >
+      {t}
+    </button>
+  ))}
+</div>
 
         {/* LOADING STATE*/}
         {loading && (
@@ -147,77 +191,257 @@ useEffect(() => {
 
         {/*JOB CARDS*/}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-          {filteredJobs.map((job) => (
-
+          {filteredJobs.map((job) => {
+            const isExpired = new Date(job.expiry_date) < new Date();
+return (
          <div      
   key={job.id}
-  className={`bg-white p-5 rounded-xl shadow-md transition hover:shadow-lg
+  className={`relative bg-white p-5 rounded-xl shadow-md transition hover:shadow-lg
     ${highlightId === job.id ? "ring-2 ring-blue-500" : ""}`}
           >
 
               {/* Job Info */}
-              <h3 className="text-lg font-semibold">
-                {job.title}
-              </h3>
+          <div className="flex justify-between items-start">
 
+  {/* LEFT: Title */}
+  <h3 className="text-lg font-semibold">
+    {job.title}
+  </h3>
+{job.matchPercent >= 70 && (
+  <span className="absolute -top-3 right-1 text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full shadow border border-purple-200">
+    Highly Matched
+  </span>
+)}
+
+{job.matchPercent >= 40 && job.matchPercent < 70 && (
+  <span className="absolute -top-3 right-1 text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full shadow border border-blue-200">
+    Matched
+  </span>
+)}
+  {/* RIGHT: Badges */}
+  <div className="flex flex-col items-end gap-1">
+
+   
+    {/* EXPIRY */}
+    {isExpired ? (
+      <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">
+        Expired
+      </span>
+    ) : (
+      <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+        Expires in {getDaysLeft(job.expiry_date)} days
+      </span>
+    )}
+
+  </div>
+</div>
+  
               <p className="text-gray-600">
                 {job.company}
               </p>
 
-              <p className="text-sm text-gray-500">
-                {job.location}
-              </p>
 
-              <p className="text-sm mt-2">
-                {job.type}
-              </p>
+             {/* TYPE + SALARY + EXPIRY (ONE ROW) */}
+<div className="flex items-center justify-between mt-2 text-sm text-gray-600">
 
-              <p className="text-sm">
-                {job.salary}
-              </p>
+  {/* LEFT SIDE */}
+  <div className="flex items-center gap-2 flex-wrap">
 
+    <span className="flex items-center gap-1">
+      <Briefcase size={14} />
+      {job.type}
+    </span>
+
+    <span>•</span>
+
+    <span className="flex items-center gap-1">
+      <IndianRupee size={14} />
+      {job.salary}
+    </span>
+
+    <span>•</span>
+
+    <span className="flex items-center gap-1 "><MapPin size={14}/>{job.location}</span>
+
+  </div>
+
+ 
+</div>
+<p
+  onClick={() => setSelectedJob(job)}
+  className="mt-2 text-sm text-gray-600 line-clamp-2 cursor-pointer hover:underline"
+>
+  {job.description}
+</p>
               {/*RESUME UPLOAD (PER JOB)*/}
-              <input
-                key={appliedJobs.includes(job.id) ? "applied" : job.id}
-                type="file"
-                accept=".pdf"
-                onChange={(e) =>
-                  setResumeFiles((prev) => ({
-                    ...prev,
-                    [job.id]: e.target.files[0],
-                  }))
-                }
-className="mt-3 text-sm w-full"
-              />
+{/* ===== APPLY FLOW SECTION ===== */}
 
+{/* 1. Upload (after clicking Apply) */}
+{/* ===== APPLY FLOW SECTION ===== */}
+
+{!isExpired && uploadMode[job.id] && !appliedJobs.includes(job.id) && (
+  <div className="mt-3 space-y-2">
+
+    {/* Upload Resume */}
+    <label className="flex items-center justify-between border rounded px-3 py-2 cursor-pointer hover:bg-gray-50">
+
+      <div className="flex items-center gap-2 text-sm text-gray-600">
+        <Upload size={16} />
+        <span>
+          {resumeFiles[job.id]?.name || "Upload Resume"}
+        </span>
+      </div>
+
+      <span className="text-xs text-slate-900 hover:underline">
+        Browse
+      </span>
+
+      <input
+        type="file"
+        accept=".pdf"
+        onChange={(e) =>
+          setResumeFiles((prev) => ({
+            ...prev,
+            [job.id]: e.target.files[0],
+          }))
+        }
+        className="hidden"
+      />
+    </label>
+
+    {/* Submit button ALWAYS visible */}
+    <button
+      onClick={() => apply(job.id)}
+      className="mt-2 w-full py-2 rounded bg-slate-800 hover:bg-slate-700 text-white"
+    >
+      Submit Application
+    </button>
+
+  </div>
+)}
+
+{/* 3. Applied state */}
+{appliedJobs.includes(job.id) && (
+  <div className="mt-3 flex items-center justify-between">
+
+    {/* LEFT: Applied button */}
+    <span className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-200 text-slate-700 rounded-full font-medium">
+  <Check size={14} />
+  Applied
+</span>
+    {/* RIGHT: View Resume button */}
+    <button
+  onClick={() => {
+    const file = resumeFiles[job.id];
+    if (typeof file === "string") {
+      window.open(file, "_blank");
+    }
+  }}
+  className="flex items-center gap-1 px-3 py-1.5 text-sm border border-slate-500 text-slate-700 rounded-full hover:bg-slate-50"
+>
+  View Resume
+  <ArrowBigRightDash size={14} />
+</button>
+
+  </div>
+)}
               {/* Show selected file name */}
-              {resumeFiles[job.id] && (
-                <p className="text-sm text-green-600 mt-1">
-                  {resumeFiles[job.id].name}
-                </p>
-              )}
-
+             {resumeFiles[job.id] && !appliedJobs.includes(job.id) && (
+  <p className="text-sm text-green-600 mt-1">
+    {resumeFiles[job.id].name}
+  </p>
+)}
               {/*APPLY BUTTON*/}
-              <button
-                onClick={() => apply(job.id)}
-                disabled={appliedJobs.includes(job.id)}
-                className={`mt-4 w-full py-2 rounded cursor-pointer ${
-                  appliedJobs.includes(job.id)
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-slate-800 hover:bg-slate-700 text-white"
-                }`}
-              >
-                {appliedJobs.includes(job.id)
-                  ? "Applied"
-                  : "Apply"}
-              </button>
+        {/* ===== APPLY BUTTON LOGIC ===== */}
+
+{/* Apply button (default state) */}
+{!uploadMode[job.id] && !appliedJobs.includes(job.id) && !isExpired && (
+  <button
+    onClick={() =>
+      setUploadMode((prev) => ({ ...prev, [job.id]: true }))
+    }
+    className="mt-4 px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-white text-sm"
+  >
+    Apply
+  </button>
+)}
+
+{/* Closed state */}
+{isExpired && (
+  <span className="mt-4 inline-block px-3 py-1 text-sm bg-gray-200 text-gray-600 rounded-full">
+    Application Closed
+  </span>
+)}
 
             </div>
 
-          ))}
+)})}
         </div>
       </div>
+
+    {/* modal ------------------------------------ */}
+     {selectedJob && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+<div className=" bg-white  w-full  max-w-lg  mx-3  sm:mx-auto  rounded-xl  p-5  shadow-lg  relative max-h-[90vh]  overflow-y-auto">
+      {/* Close */}
+      <button
+        onClick={() => setSelectedJob(null)}
+        className="absolute top-3 right-3 text-gray-500 hover:text-black"
+      >
+        ✕
+      </button>
+
+      {/* Title */}
+      <h2 className="text-xl font-semibold">
+        {selectedJob.title}
+      </h2>
+
+      {/* Company */}
+      <p className="text-gray-600 mt-1">
+        {selectedJob.company} • {selectedJob.location}
+      </p>
+
+      {/* Description */}
+      <p className="mt-4 text-sm text-gray-700 leading-relaxed">
+        {selectedJob.description}
+      </p>
+
+      {/* Skills */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {selectedJob.skills_required?.split(",").map((skill, index) => (
+          <span
+            key={index}
+            className="px-2 py-1 text-xs bg-gray-100 rounded"
+          >
+            {skill.trim()}
+          </span>
+        ))}
+      </div>
+
+      {/* ✅ Company Culture (NOW INSIDE) */}
+      {selectedJob.company_culture && (
+        <div className="mt-5">
+
+          <h3 className="text-sm font-semibold text-gray-800">
+            Company Culture
+          </h3>
+
+<ul className="mt-2 text-sm text-gray-600 space-y-2 list-disc pl-5">
+              {selectedJob.company_culture.split("\n").map((point, index) => (
+              <li key={index}>{point}</li>
+            ))}
+          </ul>
+
+        </div>
+      )}
+
     </div>
+
+  </div>
+)}
+    </div>
+
+    
   );
 }

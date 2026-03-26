@@ -1,11 +1,15 @@
 import React from "react";
 import CounselorCard from "../../component/CounselorCard";
+import FeedbackDrawer from "../../component/FeedbackDrawer"; //23 march
 import Axios from "../../axios/api.axios";
 import { useEffect, useState,useRef } from "react";
 import { toast } from "react-hot-toast";
 import { Calendar,Search } from "lucide-react";
 
 export default function BookSession() {
+  const [feedbackOpen, setFeedbackOpen] = useState(false); //feedback (23 march )
+const [selectedCounselorId, setSelectedCounselorId] = useState(null);//feedback (23 march )
+const [selectedCounselorName, setSelectedCounselorName] = useState(""); //feedback (23 march )
   const [loading, setLoading] = useState(false);  //as double booking when i click Confirm multiple times quickly
   const inputRef = useRef(null);
     const [counselors, setCounselors] = useState([]);
@@ -16,7 +20,8 @@ export default function BookSession() {
     
       const fetchCounselors = async () => {
         try {
-          const res = await Axios.get("/profile/match-counselors");
+          const res = await Axios.get("/profile/match-counselors"); 
+          console.log("API DATA:", res.data);
           setCounselors(res.data);
         } catch (error) {
           console.log(error);
@@ -155,7 +160,9 @@ console.log("Backend response:", res.data);
 ) : (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
     {filteredCounselors.map((c) => (
-      <CounselorCard key={c.id} counselor={c} onBook={setSelectedCounselor} />
+     // <CounselorCard key={c.id} counselor={c} onBook={setSelectedCounselor} />
+     <CounselorCard key={c.id} counselor={c} onBook={setSelectedCounselor} onViewFeedback={(id,name) => { setSelectedCounselorId(id);setFeedbackOpen(true);setSelectedCounselorName(name); }} //23march
+/>
     ))}
   </div>
 )}
@@ -169,10 +176,11 @@ console.log("Backend response:", res.data);
 
     <div className="relative mb-4">
   <input
-    ref={inputRef}
-    type="datetime-local"
-    value={sessionDate}
-    onChange={(e) => setSessionDate(e.target.value)}
+    ref={inputRef} 
+  type="datetime-local"
+  value={sessionDate}
+  min={new Date().toISOString().slice(0,16)}
+  onChange={(e) => setSessionDate(e.target.value)}
     className="w-full border p-2 pr-10 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 cursor-pointer"
   />
 
@@ -200,6 +208,14 @@ className="px-4 py-2 border bg-slate-700 hover:bg-slate-600 text-white hover:-tr
     </div>
   </div>
 )}
+
+<FeedbackDrawer                                    //23 march
+  open={feedbackOpen}
+  onClose={() => setFeedbackOpen(false)}
+  counselorId={selectedCounselorId}
+  counselorName={selectedCounselorName}
+  onFeedbackAdded={fetchCounselors}
+/>
     </>
   );
 }

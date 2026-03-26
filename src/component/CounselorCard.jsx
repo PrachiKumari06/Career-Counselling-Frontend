@@ -1,4 +1,5 @@
-export default function CounselorCard({ counselor, onBook }) {
+import { Star } from "lucide-react";
+export default function CounselorCard({ counselor, onBook,onViewFeedback }) {
   const profile = counselor.career_profiles?.[0];
 
   return (
@@ -13,7 +14,12 @@ export default function CounselorCard({ counselor, onBook }) {
         <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md font-semibold">
  ₹{profile?.session_price} / session</span>
       </div>
-
+<div className="flex items-center gap-1 text-yellow-500 text-sm">
+  <Star size={16} />
+  <span>
+    {counselor.avgRating || 0} ({counselor.totalReviews || 0} reviews)
+  </span>
+</div>
       <p className="text-sm text-gray-500 mt-1">
         {profile?.education}
       </p>
@@ -36,6 +42,16 @@ export default function CounselorCard({ counselor, onBook }) {
       >
         Book Session
       </button>
+      <button
+onClick={() =>
+  onViewFeedback(
+    counselor.id,
+    counselor.career_profiles?.[0]?.full_name
+  )
+}  className="w-full mt-2 border border-slate-300 text-slate-700 py-2 rounded hover:bg-slate-100 cursor-pointer"
+>
+  View Feedback
+</button>
     </div>
   );
 }
