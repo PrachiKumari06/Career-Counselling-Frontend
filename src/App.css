@@ -1,5 +1,10 @@
 @import "tailwindcss";
 /* welcome section me jo wave hand h  */
+/*  this is basically wherever text is selected it will give custom color to selected part  */
+::selection {
+  background: rgb(202, 5, 5); /* blue-700 */
+  color: #f1f5f9;      /* slate-100 */
+}
 @keyframes wave {
   0% { transform: rotate(0deg); }
   15% { transform: rotate(14deg); }
@@ -33,4 +38,31 @@
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   opacity: 0;
   display: none;
+}
+/* used in landing page of feature */
+/* Hide scrollbar completely */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE */
+  scrollbar-width: none;     /* Firefox */
+}
+
+/* signin glassphorism  */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
 }

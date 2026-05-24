@@ -17,6 +17,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import UpdatePassword from "./pages/auth/UpdatePassword"
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
+import Landing from "./pages/dashboard/Landing";
 
 export default function App() {
   
@@ -29,6 +30,14 @@ export default function App() {
   {/* Public Routes */}
   <Route
     path="/"
+    element={
+      <PublicRoute>
+        <Landing />
+      </PublicRoute>
+    }
+  />
+  <Route
+    path="/login"
     element={
       <PublicRoute>
         <Login />

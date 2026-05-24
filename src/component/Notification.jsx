@@ -17,7 +17,7 @@ export default function Notification() {
   const checkMatchingJobs = async () => {
     try {
       const profileRes = await Axios.get("/profile/career-profile");
-      const jobsRes = await Axios.get("/jobs");
+      const jobsRes = await Axios.get("/jobs/recommended");
 
       const userSkills =
         profileRes.data.skills?.toLowerCase().split(",").map(s => s.trim()) || [];
@@ -27,12 +27,11 @@ export default function Notification() {
 
       const combined = [...userSkills, ...userInterests];
 
-      const matched = jobsRes.data.filter(job => {
-        const jobSkills =
-          job.skills_required?.toLowerCase().split(",").map(s => s.trim()) || [];
-
-        return jobSkills.some(skill => combined.includes(skill));
-      });
+    const matched = jobsRes.data.filter(
+  job =>
+    job.matchPercent > 0 &&
+    new Date(job.expiry_date) > new Date()
+);
 
       setMatchingJobs(matched);
       setUnreadCount(matched.length);

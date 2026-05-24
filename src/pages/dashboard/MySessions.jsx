@@ -1,45 +1,68 @@
-import { useEffect, useState,useRef } from "react";
+import { useCallback, useEffect, useState,useRef } from "react";
 import Axios from "../../axios/api.axios";
-import { User, Calendar, Video,Clock } from "lucide-react";
+import { User, Calendar, Video, Clock, RotateCcw, History } from "lucide-react";
 
 
 export default function MySessions() {
   // Store all sessions of logged-in student
   const [sessions, setSessions] = useState([]);
-const [filter, setFilter] = useState("all");
+const [filter, setFilter] = useState("Upcoming"); //all, pending, approved, rejected, ended
 const [selectedSession, setSelectedSession] = useState(null); //all thress to set reason update 
 const [newDate, setNewDate] = useState("");
 const [reason, setReason] = useState("");
 const inputRef = useRef(null);
-  // Fetch sessions once when component loads
-  useEffect(() => {
-    fetchSessions();
-  }, []);
 
   // API call to get student's sessions
-  const fetchSessions = async () => {
+  const fetchSessions = useCallback(async () => {
     try {
       const res = await Axios.get("/session/my-sessions");
       setSessions(res.data);
     } catch (error) {
       console.log("Error fetching sessions:", error);
     }
-  };
+  }, []);
+
+  // Fetch sessions once when component loads
+  useEffect(() => {
+    const timer = setTimeout(fetchSessions, 0);
+    return () => clearTimeout(timer);
+  }, [fetchSessions]);
+const now = new Date();
+const visibleSessions = sessions.filter(
+  (s) => s.status !== "cancelled" && s.status !== "rejected"
+);
+const upcomingSessions = visibleSessions.filter(
+  (s) => new Date(s.session_date) >= now
+);
+const endedSessions = visibleSessions.filter(
+  (s) => new Date(s.session_date) < now
+);
+
 const filteredSessions = sessions.filter((s) => {
-  if (s.status === "cancelled" || s.status === "rejected") return false;
+  if (s.status === "cancelled") return false;
 
-  const isPast = new Date(s.session_date) < new Date();
+  const isPast = new Date(s.session_date) < now;
 
-  if (filter === "all") return true;
-  if (filter === "pending") return s.status === "pending";
-  if (filter === "approved") return s.status === "approved" && !isPast;
-  if (filter === "ended") return isPast;
+  if (filter === "all")
+    return !isPast && s.status === "approved";
+
+  if (filter === "pending")
+    return s.status === "pending";
+
+  if (filter === "approved")
+    return s.status === "approved";
+
+  if (filter === "rejected")
+    return s.status === "rejected";
+
+  if (filter === "ended")
+    return s.status === "approved" && isPast;
 
   return true;
 });
   return (
-<div className="mt-10">
-    {/* Section Header */}
+<div className="mt-10 w-full overflow-hidden">
+      {/* Section Header */}
 <div className="mb-6">
   <h2 className="text-xl font-semibold text-slate-800">
     My Sessions
@@ -48,27 +71,42 @@ const filteredSessions = sessions.filter((s) => {
     Track your upcoming counseling sessions and join them when approved.
   </p>
 </div>
- <div className="flex gap-2 mb-4">
-  {["all", "pending", "approved", "ended"].map((f) => (
+ <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+<div className="flex flex-wrap gap-2">
+    {["Upcoming", "pending", "approved","rejected", "ended"].map((f) => (
     <button
       key={f}
       onClick={() => setFilter(f)}
-      className={`px-3 py-1 rounded text-sm capitalize
+      className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium capitalize transition
         ${
           filter === f
-            ? "bg-slate-800 text-white"
-            : "bg-gray-200 text-gray-700"
+            ? "bg-slate-900 text-white shadow"
+            : "bg-white text-gray-700 border border-gray-200 hover:border-slate-300"
         }`}
     >
-      {f}
+      {f === "all" ? "upcoming" : f}
     </button>
   ))}
+  </div>
+  <div className="flex gap-3 text-xs text-slate-500">
+    <span className="inline-flex items-center gap-1">
+      <Clock size={14} /> {upcomingSessions.length} upcoming
+    </span>
+    <span className="inline-flex items-center gap-1">
+      <History size={14} /> {endedSessions.length} ended
+    </span>
+  </div>
 </div>
 {filteredSessions.length === 0 && (
- <p className="text-gray-600">
-Book a session with one of our expert counselors to get personalized career guidance. 
-Your sessions will appear here once booked.
-</p>
+ <div className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-slate-600">
+  <p className="font-medium text-slate-800">
+    {filter === "ended" ? "No completed sessions yet." : `No ${filter} sessions right now.`}
+    
+  </p>
+  <p className="mt-1 text-sm">
+    Book a session with one of our expert counselors to get personalized career guidance.
+  </p>
+</div>
 )}
 
 
@@ -110,12 +148,16 @@ Your sessions will appear here once booked.
         ? "bg-green-100 text-green-700"
         : s.status === "pending"
         ? "bg-yellow-100 text-yellow-700"
+        : s.status === "rejected"
+        ? "bg-red-100 text-red-700"
         : "bg-gray-100 text-gray-700"
     }`}
 >
-  {isPast
-    ? "Session Ended"
-    : s.status.charAt(0).toUpperCase() + s.status.slice(1)}
+ {s.status === "rejected"
+  ? "Session Rejected"
+  : s.status === "approved" && isPast
+  ? "Session Ended"
+  : s.status.charAt(0).toUpperCase() + s.status.slice(1)}
 </span>
 
     {s.status === "approved" && !isPast && (
@@ -158,24 +200,33 @@ Your sessions will appear here once booked.
     {isPast ? "Session Ended" : "Join Session"}
   </a>
 )}
-{s.rejection_reason && (
-  <p className="text-red-600 text-sm mt-2">
-    Rejected: {s.rejection_reason}
-  </p>
-)}
+
 {s.status === "approved" && !isPast && (
   <button
     onClick={() => setSelectedSession(s.id)}
-    className="ml-3 px-3 py-2 border rounded text-sm"
+    className="mt-3 inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
   >
+    <RotateCcw size={15} />
     Reschedule
   </button>
 )}
   {/* if session is not appreved yet */}
-  {s.status === "pending" && (
-<p className="text-xs text-yellow-700 bg-yellow-50 px-2 py-1 rounded-md mt-3 inline-flex items-center gap-1">  <Clock size={14} />
-  Waiting for counselor approval
-</p>)}
+ {s.status === "pending" && (
+  <p className="text-xs text-yellow-700 bg-yellow-50 px-3 py-2 rounded-md mt-3 inline-flex items-center gap-1">
+    <Clock size={14} />
+    Waiting for counselor approval
+  </p>
+)}
+
+{s.status === "rejected" &&
+  typeof s.rejection_reason === "string" &&
+  s.rejection_reason.trim() !== "" && (
+    <div className="mt-3 rounded-md bg-red-50 border border-red-200 p-3">
+      <p className="font-medium text-red-700">
+        Reason: {s.rejection_reason}
+      </p>
+    </div>
+)}
 {/* ----------------------------------------reson of date to reschedule ---------------------------------------------- */}
 
 </div>

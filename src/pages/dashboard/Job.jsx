@@ -33,16 +33,19 @@ useEffect(() => {
   }, []);
 
 //fetch all jobs
-  const fetchJobs = async () => {
-    try {
-      const res = await Axios.get("/jobs/recommended");
-      setJobs(res.data);
-    } catch (error) {
-      console.log("Error fetching jobs:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchJobs = async () => {
+  try {
+    const res = await Axios.get("/jobs/recommended");
+
+    console.log("Recommended jobs:", res.data);
+
+    setJobs(res.data);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setLoading(false);
+  }
+};
 
 //FETCH APPLIED JOBS----> So Apply button remains disabled after refresh
   const fetchAppliedJobs = async () => {
@@ -100,15 +103,30 @@ console.log(resumeFiles[jobId]);
       toast.error(error.response?.data?.error || "Failed to apply");
     }
   };
+
+  const activeCount = jobs.filter(
+  (job) => new Date(job.expiry_date) >= new Date()
+).length;
+
+const closedCount = jobs.filter(
+  (job) => new Date(job.expiry_date) < new Date()
+).length;
+const allCount = jobs.filter(
+  (job) => new Date(job.expiry_date) >= new Date()
+).length;
+const appliedCount = jobs.filter(
+  (job) => appliedJobs.includes(job.id)
+).length;
 //filter job based on search
   const filteredJobs = jobs.filter((job) => {
   const isExpired = new Date(job.expiry_date) < new Date();
   const isApplied = appliedJobs.includes(job.id);
 
   // TAB FILTER
+  if (tab === "all" && isExpired) return false;
   if (tab === "active" && isExpired) return false;
   if (tab === "closed" && !isExpired) return false;
-  if (tab === "applied" && !isApplied) return false;
+  if (tab === "applied" && (!isApplied )) return false;
 
   // SEARCH FILTER
   if (
@@ -164,17 +182,22 @@ const getDaysLeft = (date) => {
   </div>
 </div>
 <div className="flex gap-4 mb-6 text-sm font-medium">
-  {["all", "active", "closed", "applied"].map((t) => (
+  {[
+{ key: "all", label: `All (${allCount})` },
+    { key: "active", label: `Active (${activeCount})` },
+    { key: "closed", label: `Closed (${closedCount})` },
+    { key: "applied", label: `Applied (${appliedCount})` },
+  ].map((item) => (
     <button
-      key={t}
-      onClick={() => setTab(t)}
+      key={item.key}
+      onClick={() => setTab(item.key)}
       className={`px-3 py-1 rounded capitalize ${
-        tab === t
+        tab === item.key
           ? "bg-slate-800 text-white"
           : "bg-gray-200 text-gray-700"
       }`}
     >
-      {t}
+      {item.label}
     </button>
   ))}
 </div>
@@ -186,8 +209,23 @@ const getDaysLeft = (date) => {
 
         {/*EMPTY STATE*/}
         {!loading && filteredJobs.length === 0 && (
-          <p className="text-gray-500">No jobs found.</p>
-        )}
+  <div className="flex flex-col items-center justify-center py-16">
+    
+    <img
+      src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png"
+      alt="No jobs"
+      className="w-40 h-40 opacity-80"
+    />
+
+    <h3 className="mt-6 text-2xl font-semibold text-slate-800">
+      No jobs found
+    </h3>
+
+    <p className="mt-2 text-gray-500 text-center max-w-md">
+      Try changing your filters or check back later for new opportunities.
+    </p>
+  </div>
+)}
 
         {/*JOB CARDS*/}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

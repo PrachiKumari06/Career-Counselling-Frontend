@@ -1,11 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Sidebar from "../../component/Sidebar";
-import { Clock, ListChecks, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Compass,
+  ListChecks,
+  Sparkles,
+} from "lucide-react";
 import timeoutSound from "../../assets/timeout.mp3";
 
 function Assessment() {
-  const [showTimeoutModal, setShowTimeoutModal] = useState(false);
-  const [audio] = useState(() => new Audio(timeoutSound));
+  const audioRef = useRef(new Audio(timeoutSound));
 
   const questions = [
     {
@@ -103,6 +110,17 @@ function Assessment() {
   ];
 
   const totalSteps = questions.length;
+  const categoryLabels = {
+    confidence: "Self belief",
+    skill: "Skill readiness",
+    motivation: "Motivation",
+    thinking_style: "Thinking style",
+    environment: "Work setting",
+    risk: "Risk comfort",
+    interest: "Interests",
+    resilience: "Resilience",
+    clarity: "Goal clarity",
+  };
 
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -110,8 +128,8 @@ function Assessment() {
   const [timeLeft, setTimeLeft] = useState(300);
 
   useEffect(() => {
-    audio.volume = 1;
-  }, [audio]);
+    audioRef.current.volume = 1;
+  }, []);
 
   useEffect(() => {
     if (timeLeft <= 0 || result) return;
@@ -123,29 +141,28 @@ function Assessment() {
 
  useEffect(() => {
   if (timeLeft === 0 && !result) {
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-    setShowTimeoutModal(true);
+    audioRef.current.currentTime = 0;
+    audioRef.current.play().catch(() => {});
   }
-}, [timeLeft, result, audio]);
+}, [timeLeft, result]);
 useEffect(() => {
   if (result) return;
 
   //  Play once at 30 seconds
   if (timeLeft === 30) {
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
+    audioRef.current.currentTime = 0;
+    audioRef.current.play().catch(() => {});
   }
 
   //  Play continuously under 10 seconds
   if (timeLeft <= 10 && timeLeft > 0) {
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
+    audioRef.current.currentTime = 0;
+    audioRef.current.play().catch(() => {});
   }
 
  
 
-}, [timeLeft, result, audio]);
+}, [timeLeft, result]);
 
   const formatTime = (seconds) => {
     const min = Math.floor(seconds / 60);
@@ -195,6 +212,7 @@ useEffect(() => {
   };
 
   const progress = ((step + 1) / totalSteps) * 100;
+  const answeredCount = Object.keys(answers).length;
 
   if (result) {
     const sortedResults = Object.entries(result).sort((a, b) => b[1] - a[1]);
@@ -215,47 +233,114 @@ useEffect(() => {
     };
 
     const profileTitle = generateProfile();
+    const profileCopy = {
+      "Strategic Builder":
+        "You show strong analytical judgment and product-minded execution. Roles that mix systems, planning, and ownership can fit you well.",
+      "Driven Achiever":
+        "You are motivated, resilient, and likely to stay steady when goals get demanding. Growth tracks with clear milestones may suit you.",
+      "Creative Explorer":
+        "You seem energized by variety, ideas, and environments where you can test new possibilities before narrowing down.",
+      "Balanced Professional":
+        "Your profile is balanced across multiple traits, which gives you flexibility to compare options before choosing a focused path.",
+    };
+    const nextSteps = [
+      "Book a counselor session to validate your top career paths.",
+      "Use AI recommendations to compare skills, roles, and learning roadmaps.",
+      "Retake this assessment after completing a course or project milestone.",
+    ];
 
     return (
       <>
         <Sidebar />
-        <div className="md:ml-64 min-h-screen bg-slate-100 flex justify-center items-center p-6">
-          <div className="w-full max-w-2xl bg-slate-800 shadow-2xl rounded-2xl p-8 text-white">
-            <h2 className="text-2xl font-semibold text-center mb-2">
-              Your Career Profile
-            </h2>
-            <p className="text-center text-blue-400 text-lg font-medium mb-6">
-              {profileTitle}
-            </p>
-            <div className="bg-slate-700/60 p-4 rounded-lg text-sm mb-8">
-              Based on your responses, this profile reflects your strongest tendencies and areas for development.
-            </div>
-            <h3 className="text-lg font-semibold mb-4">Top Strengths</h3>
-            <div className="space-y-4 mb-8">
-              {topStrengths.map(([category, score]) => (
-                <div key={category}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="capitalize">
-                      {category.replace("_", " ")}
-                    </span>
-                    <span>{score}%</span>
-                  </div>
-                  <div className="w-full bg-slate-700 h-2 rounded-full">
+        <div className="md:ml-64 min-h-screen bg-[#f6f7fb] px-4 pb-4 pt-0 sm:px-6 sm:pb-6">
+          <div className="mx-auto max-w-6xl pt-0">
+            <div className="mb-6 overflow-hidden rounded-2xl bg-slate-950 text-white shadow-xl">
+              <div className="grid gap-6 p-6 md:grid-cols-[1.2fr_0.8fr] md:p-8">
+                <div>
+                  <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-1 text-sm font-medium text-emerald-200">
+                    <CheckCircle2 size={16} /> Assessment complete
+                  </p>
+                  <h2 className="text-3xl font-semibold md:text-4xl">
+                    {profileTitle}
+                  </h2>
+                  <p className="mt-3 max-w-2xl text-slate-300">
+                    {profileCopy[profileTitle]}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+                  <p className="text-sm text-slate-300">Strongest signal</p>
+                  <p className="mt-2 text-2xl font-semibold capitalize">
+                    {categoryLabels[topStrengths[0][0]]}
+                  </p>
+                  <div className="mt-4 h-3 rounded-full bg-white/10">
                     <div
-                      className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full"
-                      style={{ width: `${score}%` }}
+                      className="h-3 rounded-full bg-emerald-400"
+                      style={{ width: `${topStrengths[0][1]}%` }}
                     />
                   </div>
+                  <p className="mt-2 text-sm text-slate-300">
+                    {topStrengths[0][1]}% match strength
+                  </p>
                 </div>
-              ))}
+              </div>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Growth Opportunity</h3>
-            <div className="bg-slate-700/60 p-4 rounded-lg text-sm mb-8">
-              <span className="capitalize font-medium">
-                {growthArea[0].replace("_", " ")}
-              </span>{" "}
-              needs more attention.
+
+            <div className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  Top Strengths
+                </h3>
+                <div className="space-y-5">
+                  {topStrengths.map(([category, score]) => (
+                    <div key={category}>
+                      <div className="mb-2 flex justify-between text-sm">
+                        <span className="font-medium text-slate-700">
+                          {categoryLabels[category]}
+                        </span>
+                        <span className="text-slate-500">{score}%</span>
+                      </div>
+                      <div className="h-3 rounded-full bg-slate-100">
+                        <div
+                          className="h-3 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-500"
+                          style={{ width: `${score}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="mb-3 text-lg font-semibold text-slate-900">
+                  Growth Focus
+                </h3>
+                <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
+                  <span className="font-semibold">
+                    {categoryLabels[growthArea[0]]}
+                  </span>{" "}
+                  is the area to strengthen next. Start with one small project,
+                  habit, or conversation that makes this skill visible.
+                </div>
+                <h3 className="mb-3 mt-6 text-lg font-semibold text-slate-900">
+                  Next Steps
+                </h3>
+                <div className="space-y-3">
+                  {nextSteps.map((item) => (
+                    <p
+                      key={item}
+                      className="flex gap-3 rounded-lg border border-slate-100 p-3 text-sm text-slate-700"
+                    >
+                      <CheckCircle2
+                        size={18}
+                        className="mt-0.5 shrink-0 text-emerald-500"
+                      />
+                      {item}
+                    </p>
+                  ))}
+                </div>
+              </div>
             </div>
+
             <button
               onClick={() => {
                 setResult(null);
@@ -263,7 +348,7 @@ useEffect(() => {
                 setStep(0);
                 setTimeLeft(300);
               }}
-              className="w-full p-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition"
+              className="mt-6 w-full rounded-xl bg-slate-950 p-3 font-semibold text-white transition hover:bg-slate-800"
             >
               Retake Assessment
             </button>
@@ -276,32 +361,63 @@ useEffect(() => {
   return (
     <>
       <Sidebar />
-      <div className="pt-16 md:pt-0 md:ml-64 min-h-screen bg-slate-100">
-        <div className="max-w-3xl mx-auto pt-8 px-4 sm:px-6">
-          <h1 className="text-3xl font-bold text-slate-800">
-            Career Assessment
-          </h1>
-          <p className="text-slate-500 mt-2">
-            Complete this 9-question assessment to discover your strengths and growth areas.
-          </p>
-          <div className="flex gap-6 mt-6 text-sm text-slate-600 flex-wrap">
-            <div className="flex items-center gap-2">
-              <ListChecks size={18} />9 Questions
+      <div className="pt-0 md:ml-64 min-h-screen bg-[#f4f7fb] px-4 pb-4 sm:px-6 sm:pb-6">
+        <div className="mx-auto max-w-6xl pt-0">
+          <div className="mb-6 md:mt-2  mt-18">
+            <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-xl sm:p-8">
+              <div className="mb-5 flex flex-wrap items-center gap-3 text-sm text-slate-300">
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
+                  <ListChecks size={16} /> {totalSteps} questions
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
+                  <Clock size={16} /> 5 minutes
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
+                  <Sparkles size={16} /> Personalized results
+                </span>
+              </div>
+              <h1 className="max-w-3xl text-3xl font-semibold leading-tight md:text-4xl">
+                Discover the career patterns behind your choices.
+              </h1>
+              <p className="mt-3 max-w-2xl text-slate-300">
+                Answer honestly and get strengths, growth focus, and practical
+                next steps for your career planning.
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock size={18} />5 Minutes
-            </div>
-            <div className="flex items-center gap-2">
-              <Sparkles size={18} />Personalized Results
-            </div>
-          </div>
-        </div>
 
-        <div className="max-w-3xl mx-auto mt-6 px-4 sm:px-6 pb-16">
-          <div className="bg-slate-800 border border-slate-700 shadow-2xl rounded-2xl p-6 sm:p-8 text-white">
+          </div>
+
+          <div className="grid gap-6 pb-16 lg:grid-cols-[260px_1fr]">
+            <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="mb-4 text-sm font-medium text-slate-500">
+                Question map
+              </p>
+              <div className="grid grid-cols-5 gap-2 lg:grid-cols-3">
+                {questions.map((question, index) => (
+                  <button
+                    key={question.category}
+                    onClick={() => setStep(index)}
+                    className={`h-10 rounded-lg text-sm font-semibold transition ${
+                      step === index
+                        ? "bg-slate-950 text-white"
+                        : answers[index]
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-5 rounded-xl bg-cyan-50 p-4 text-sm text-cyan-950">
+                Your answer is saved as soon as you select an option.
+              </div>
+            </aside>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm sm:p-8">
 
             <div className="flex justify-between items-start mb-4">
-              <span className="text-sm text-slate-400">
+              <span className="text-sm font-medium text-slate-500">
                 Question {step + 1} of {totalSteps}
               </span>
 
@@ -314,7 +430,7 @@ useEffect(() => {
                 )}
                 <div
                   className={`flex items-center gap-2 font-medium ${
-                    timeLeft <= 30 ? "text-red-500" : "text-slate-100"
+                    timeLeft <= 30 ? "text-red-500" : "text-slate-800"
                   }`}
                 >
                   <Clock size={16} />
@@ -323,25 +439,28 @@ useEffect(() => {
               </div>
             </div>
 
-            <div className="w-full bg-slate-700 rounded-full h-2 mb-6">
+            <div className="w-full bg-slate-100 rounded-full h-2 mb-6">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                className="bg-emerald-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
 
-            <h3 className="text-lg mb-6">
+            <p className="mb-2 text-sm font-medium text-emerald-700">
+              {categoryLabels[questions[step].category]}
+            </p>
+            <h3 className="text-2xl font-semibold text-slate-900 mb-6">
               {questions[step].question}
             </h3>
 
-            <div className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               {questions[step].options.map((option, index) => (
                 <label
                   key={index}
-                  className={`block p-3 rounded-lg cursor-pointer border transition ${
+                  className={`flex min-h-20 cursor-pointer items-center gap-3 rounded-xl border p-4 transition ${
                     answers[step]?.label === option.label
-                      ? "bg-slate-700 border-blue-500"
-                      :  "bg-slate-900 border-slate-600 hover:bg-slate-800"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-950"
+                      :  "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
                   <input
@@ -349,9 +468,9 @@ useEffect(() => {
                     name={`question-${step}`}
                     checked={answers[step]?.label === option.label}
                     onChange={() => handleSelect(option)}
-                   className="mr-2 accent-blue-500"
+                   className="accent-emerald-500"
                   />
-                  {option.label}
+                  <span className="font-medium">{option.label}</span>
                 </label>
               ))}
             </div>
@@ -360,23 +479,25 @@ useEffect(() => {
               <button
                 onClick={handlePrev}
                 disabled={step === 0}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
               >
+                <ArrowLeft size={16} />
                 Previous
               </button>
               <button
                 onClick={handleNext}
                 disabled={!answers[step]}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-6 py-2 font-medium text-white hover:bg-slate-800 disabled:opacity-50"
               >
                 {step === totalSteps - 1 ? "Finish" : "Next"}
+                <ArrowRight size={16} />
               </button>
             </div>
 
           </div>
         </div>
 
-        {showTimeoutModal && (
+        {timeLeft === 0 && !result && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4">
             <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-sm text-center shadow-2xl">
               <h2 className="text-xl font-semibold text-slate-800 mb-3">
@@ -387,7 +508,6 @@ useEffect(() => {
               </p>
               <button
                 onClick={() => {
-                  setShowTimeoutModal(false);
                   setResult(calculateResult());
                 }}
                 className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
@@ -398,6 +518,7 @@ useEffect(() => {
           </div>
         )}
 
+      </div>
       </div>
     </>
   );
