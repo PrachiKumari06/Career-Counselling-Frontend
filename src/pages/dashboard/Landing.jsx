@@ -2,7 +2,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import React, { useState,useEffect,useRef } from "react";
 import { ChevronLeft, ChevronRight, Menu, X ,Target,Users,Brain,BriefcaseBusiness,FileUser,ChartLine} from "lucide-react";
-import heroImg from "../../assets/hero.png";
 import { ReactTyped } from "react-typed";
 import img1 from "../../assets/img1.png";
 import img2 from "../../assets/img2.png";
