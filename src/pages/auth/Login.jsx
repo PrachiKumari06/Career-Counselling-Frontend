@@ -2,7 +2,6 @@ import {useState} from 'react'
 import toast from 'react-hot-toast';
 import Axios from "../../axios/api.axios.js"
 import { useNavigate } from "react-router-dom";
-import illustration from "../../assets/illustration.png";
 import { ArrowLeft } from "lucide-react";
 
 export default function Login() {
