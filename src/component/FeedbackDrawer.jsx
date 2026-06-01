@@ -102,14 +102,6 @@ const res = await Axios.get(`/feedback/${counselorId}?filter=${filter}`);
       All
     </button>
 
-    <button
-      onClick={() => setFilter("new")}
-      className={`px-3 py-1 rounded ${
-        filter === "new" ? "bg-slate-700 text-white" : "bg-gray-200"
-      }`}
-    >
-      New Feedback
-    </button>
 
     <button
       onClick={() => setFilter("week")}
@@ -157,47 +149,51 @@ const res = await Axios.get(`/feedback/${counselorId}?filter=${filter}`);
           </button>
         </div>
 
-        {/* Reviews */}
-        <div>
-          {reviews.map((r) => (
-            <div key={r.id} className="border-b py-3">
-              <p className="font-medium">
-{r.profiles?.career_profiles?.[0]?.full_name || "User"}
-              </p>
+      {/* Reviews */}
+<div>
+  {reviews.length === 0 ? (
+    <div className="text-center py-8 text-gray-500">
+      {filter === "week"
+        ? "No feedback received in the last 7 days."
+        : "No feedback available yet."}
+    </div>
+  ) : (
+    reviews.map((r) => (
+      <div key={r.id} className="border-b py-3">
+        <p className="font-medium">
+          {r.profiles?.career_profiles?.[0]?.full_name || "User"}
+        </p>
 
-              <p className="text-yellow-500">
-                {"★".repeat(r.rating)}
-              </p>
+        <p className="text-yellow-500">
+          {"★".repeat(r.rating)}
+        </p>
 
-              <p className="text-sm text-gray-600">{r.comment}</p>
+        <p className="text-sm text-gray-600">
+          {r.comment}
+        </p>
 
-             <div className="flex justify-between items-center mt-2 text-xs text-gray-400">
+        <div className="flex justify-between items-center mt-2 text-xs text-gray-400">
+          {/* date on left */}
+          <p>
+            {new Date(r.created_at).toLocaleDateString()}
+          </p>
 
-  {/* date on left */}
-  <p>
-    {new Date(r.created_at).toLocaleDateString()}
-  </p>
-
-  {/*like on right  */}
-  <button
-    onClick={() => handleLike(r.id)}
-    className="flex items-center gap-1 hover:text-slate-900"
-  >
-    <ThumbsUp size={16} />
-    <span>{r.feedback_likes?.[0]?.count || 0}</span>
-  </button>
-
-</div>
-              
-              <div className="flex items-center gap-4 mt-2 text-gray-500 text-sm">
-
- 
-
-</div>
-            </div>
-          ))}
+          {/* like on right */}
+          <button
+            onClick={() => handleLike(r.id)}
+            className="flex items-center gap-1 hover:text-slate-900"
+          >
+            <ThumbsUp size={16} />
+            <span>{r.feedback_likes?.[0]?.count || 0}</span>
+          </button>
         </div>
 
+        <div className="flex items-center gap-4 mt-2 text-gray-500 text-sm">
+        </div>
+      </div>
+    ))
+  )}
+</div>
       </div>
     </div>
   );

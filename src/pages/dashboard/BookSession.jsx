@@ -62,8 +62,10 @@ if (loading) return;
 
 console.log("Backend response:", res.data);
     // FREE SESSION
-    if (!res.data.paymentRequired) {
-      toast.success("Session booked successfully, check your mail!");
+   if (!res.data.paymentRequired) {
+  toast.success(
+    "Session booked successfully! Your first session is free. Check your email."
+  );
       setSelectedCounselor(null);
       setSessionDate("");
       setLoading(false);   

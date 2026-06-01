@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import Axios from "../../axios/api.axios.js"
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-
+import { supabase } from "../../supabase/supabaseClient";
 export default function Login() {
     const navigate = useNavigate();
 const [formData, setFormData] = useState({
@@ -35,6 +35,21 @@ const handleSubmit = async (e) => {
     toast.error("Login failed: " + (error.response?.data?.error || error.message));
   }
 };
+const handleGoogleAuth = async () => {
+  await supabase.auth.signOut();
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+redirectTo: `${window.location.origin}/auth/callback?mode=login`,
+      queryParams: {
+        prompt: "select_account",
+      },
+    },
+  });
+
+  if (error) toast.error(error.message);
+};
 return (
 <div
   className="
@@ -51,9 +66,10 @@ return (
 
     {/* Login Card */}
     <form
-      onSubmit={handleSubmit}
-      className="
-        relative z-10
+  onSubmit={handleSubmit}
+  className="
+    animate-rise-in
+    relative z-10
         w-full max-w-md
         bg-white/10
         backdrop-blur-xl
@@ -147,6 +163,23 @@ return (
       >
         Login
       </button>
+      <div className="flex items-center gap-3 text-slate-400 text-sm">
+  <div className="h-px flex-1 bg-white/10" />
+  <span>or</span>
+  <div className="h-px flex-1 bg-white/10" />
+</div>
+    <button
+  type="button"
+  onClick={handleGoogleAuth}
+  className="w-full p-3 rounded-xl bg-white text-slate-800 font-semibold border border-blue-400 hover:bg-slate-100 transition flex items-center justify-center gap-3"
+>
+  <img
+    src="https://www.svgrepo.com/show/475656/google-color.svg"
+    alt="Google"
+    className="w-5 h-5"
+  />
+  Continue with Google
+</button>
 
       {/* Forgot Password */}
       <p

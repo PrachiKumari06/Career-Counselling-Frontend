@@ -38,7 +38,7 @@ const [originalName, setOriginalName] = useState("");
   const handleSubmit = async (e) => {
   e.preventDefault();
   try {
-    
+    console.log(formData);
     if (isEdit) {
       await Axios.put("/profile/career-profile", formData);
       toast.success("Profile updated successfully");
@@ -57,20 +57,30 @@ const [originalName, setOriginalName] = useState("");
   return (
 <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">    <form
       onSubmit={handleSubmit}
-className="w-full max-w-md bg-slate-800 border border-slate-700 shadow-2xl rounded-2xl p-8 text-slate-900 flex flex-col gap-4 transition-transform duration-300 hover:scale-[1.02]"    >
-      <h2 className="text-white text-xl font-semibold text-center">
-        {isEdit ? "Update Profile" : "Create Profile"}
-      </h2>
+className="animate-rise-in w-full max-w-md bg-slate-800 border border-slate-700 shadow-2xl rounded-2xl p-8 text-slate-900 flex flex-col gap-4 transition-transform duration-300 hover:scale-[1.02]"    >
+      <div className="text-center mb-2">
+  <h2 className="text-white text-2xl font-semibold">
+    {isEdit ? "Update Your Profile" : "Create Your Career Profile"}
+  </h2>
 
-     <input
-  type="text"
-  placeholder="Full Name"
-  value={formData.full_name}
-  onChange={(e) => {
-    setFormData({ ...formData, full_name: e.target.value });
-  }}
-  className="p-3 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-/>
+</div>
+
+   <div className="relative">
+  <input
+    type="text"
+    placeholder="Full Name"
+    required
+    value={formData.full_name}
+    onChange={(e) =>
+      setFormData({ ...formData, full_name: e.target.value })
+    }
+    className="w-full p-3 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+
+  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 text-lg">
+    *
+  </span>
+</div>
       <input
         type="text"
         placeholder="Education"
@@ -80,16 +90,21 @@ className="w-full max-w-md bg-slate-800 border border-slate-700 shadow-2xl round
         }
         className="p-3 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-
-      <input
-        type="text"
-        placeholder="Skills"
-        value={formData.skills}
-        onChange={(e) =>
-          setFormData({ ...formData, skills: e.target.value })
-        }
-        className="p-3 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+<div className="relative">
+  <input
+    type="text"
+    placeholder="Skills"
+    required
+    value={formData.skills}
+    onChange={(e) =>
+      setFormData({ ...formData, skills: e.target.value })
+    }
+    className="w-full p-3 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 "
+  />
+  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 text-lg">
+    *
+  </span>
+</div>
 
       <select
         value={formData.experience}
@@ -131,13 +146,16 @@ className="w-full max-w-md bg-slate-800 border border-slate-700 shadow-2xl round
       >
         {isEdit ? "Update Profile" : "Create Profile"}
       </button>
-   <button
-  type="button"
-  onClick={() => navigate("/dashboard")}
-  className="p-3 bg-gray-600 hover:bg-gray-500 text-white rounded-lg"
->
-  Skip for now
-</button>
+   
+{isEdit && (
+  <button
+    type="button"
+    onClick={() => navigate("/dashboard")}
+    className="p-3 bg-gray-600 hover:bg-gray-500 text-white rounded-lg"
+  >
+    Skip for now
+  </button>
+)}
     </form>
   </div>
 );

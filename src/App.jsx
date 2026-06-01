@@ -18,6 +18,7 @@ import UpdatePassword from "./pages/auth/UpdatePassword"
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import Landing from "./pages/dashboard/Landing";
+import AuthCallback from "./pages/auth/AuthCallback";
 
 export default function App() {
   
@@ -56,7 +57,7 @@ export default function App() {
 
   <Route path="/forgot-password" element={<ForgotPassword />} />
   <Route path="/update-password" element={<UpdatePassword />} />
-
+<Route path="/auth/callback" element={<AuthCallback />} />
   {/* Protected Routes */}
   <Route
     path="/dashboard"
