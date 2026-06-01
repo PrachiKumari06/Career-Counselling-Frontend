@@ -18,18 +18,9 @@ export default function Notification() {
     try {
       const profileRes = await Axios.get("/profile/career-profile");
       const jobsRes = await Axios.get("/jobs/recommended");
-
-      const userSkills =
-        profileRes.data.skills?.toLowerCase().split(",").map(s => s.trim()) || [];
-
-      const userInterests =
-        profileRes.data.interests?.toLowerCase().split(",").map(s => s.trim()) || [];
-
-      const combined = [...userSkills, ...userInterests];
-
-    const matched = jobsRes.data.filter(
+   const matched = jobsRes.data.filter(
   job =>
-    job.matchPercent > 0 &&
+    (job.matchedSkills?.length > 0 || job.matchPercent > 0) &&
     new Date(job.expiry_date) > new Date()
 );
 

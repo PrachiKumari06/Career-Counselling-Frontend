@@ -245,13 +245,16 @@ return (
   <h3 className="text-lg font-semibold">
     {job.title}
   </h3>
-{job.matchPercent >= 70 && (
+
+
+ 
+ {job.matchedSkills?.length >= 2 && (
   <span className="absolute -top-3 right-1 text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full shadow border border-purple-200">
     Highly Matched
   </span>
 )}
 
-{job.matchPercent >= 40 && job.matchPercent < 70 && (
+{job.matchedSkills?.length === 1 && (
   <span className="absolute -top-3 right-1 text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full shadow border border-blue-200">
     Matched
   </span>

@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState,useEffect,useRef } from "react";
-import { ChevronLeft, ChevronRight, Menu, X ,Target,Users,Brain,BriefcaseBusiness,FileUser,ChartLine} from "lucide-react";
+import { ChevronLeft, ChevronRight, Menu, X ,Target,Users,Brain,BriefcaseBusiness,FileUser,ChartLine,PhoneCall,Mail,MapPin} from "lucide-react";
 import { ReactTyped } from "react-typed";
 import img1 from "../../assets/img1.png";
 import img2 from "../../assets/img2.png";
@@ -195,8 +195,8 @@ const [openIndex, setOpenIndex] = useState(null);
  <ReactTyped
   className="text-slate-300 mt-4 max-w-xl"
   strings={[
-    "Connect with top counselors, explore personalized career paths",
-    "and build your future with confidence."
+    "Connect with top counselors, explore personalized career paths and build your future with confidence."
+   
   ]}
   typeSpeed={50}
   backSpeed={50}
@@ -206,11 +206,7 @@ const [openIndex, setOpenIndex] = useState(null);
   {/* BUTTONS */}
   <div className="flex gap-4 mt-6">
     <button className="bg-white text-slate-800 px-6 py-2 rounded-full font-medium hover:bg-gray-200 cursor-pointer">
-     <Link to="/login">Get Started</Link>
-    </button>
-
-    <button className="border border-slate-500 px-6 py-2 rounded-full hover:bg-slate-700">
-      Personalized Support
+     <Link to="/login">Start Your Journey</Link>
     </button>
   </div>
 
@@ -528,7 +524,67 @@ w-[85%] sm:w-[55%] md:w-[28%] lg:w-[25%] flex-shrink-0"        >
 
       </div>
     </div>
+    
 </div>
+<footer className="bg-slate-900 border-t border-slate-800 text-slate-300 rounded-3xl m-2">
+  <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+      {/* Brand */}
+      <div>
+        <h2 className="text-xl font-bold text-white">
+          CareerConnect
+        </h2>
+        <p className="mt-3 text-sm text-slate-400">
+          Helping students and professionals connect with experienced mentors
+          for personalized career guidance.
+        </p>
+      </div>
+
+      {/* Quick Links */}
+      <div>
+        <h3 className="text-white font-semibold mb-3">
+          Quick Links
+        </h3>
+        <ul className="space-y-2 text-sm">
+          <li>
+            <a href="#about" className="hover:text-white">
+              About Us
+            </a>
+          </li>
+          <li>
+            <a href="#services" className="hover:text-white">
+              Services
+            </a>
+          </li>
+          <li>
+            <a href="#contact" className="hover:text-white">
+              Contact
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      {/* Contact Us */}
+      <div id="contact">
+        <h3 className="text-white font-semibold mb-3">
+          Contact Us
+        </h3>
+
+        <div className="space-y-2 text-sm">
+          <p><Mail className="inline mr-2" /> support@careerconnect.com</p>
+          <p><PhoneCall className="inline mr-2" /> +91 93102 51679 </p>
+          <p><MapPin className="inline mr-2" /> India</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div className="border-t border-slate-800 mt-8 pt-6 text-center text-sm text-slate-500">
+      © {new Date().getFullYear()} CareerConnect. All rights reserved.
+    </div>
+  </div>
+</footer>
     </div>
   );
 }

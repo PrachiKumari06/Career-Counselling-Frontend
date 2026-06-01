@@ -25,9 +25,9 @@ const handleSubmit = async (e) => {
     localStorage.setItem("userId", response.data.userId);  // <-- ADD THIS
 
     if (!response.data.hasProfile) {
-   navigate("/onboarding");
+navigate("/onboarding", { replace: true });
 } else {
-   navigate("/dashboard");
+   navigate("/dashboard", { replace: true });
 }
 
   } catch (error) {
@@ -81,16 +81,7 @@ return (
       "
     >
       {/* Logo / Title */}
-      <div className="text-center mb-2">
-        <h1 className="text-4xl font-bold text-white tracking-wide">
-          CareerConnect
-        </h1>
-
-        <p className="text-slate-300 mt-2 text-sm">
-          Your personalized career guidance platform
-        </p>
-      </div>
-
+    
       {/* Welcome */}
       <div className="text-center mb-4">
         <h2 className="text-2xl font-semibold text-white">

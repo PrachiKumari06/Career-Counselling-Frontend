@@ -34,9 +34,63 @@ const [originalName, setOriginalName] = useState("");
 
   fetchProfile();
 }, []);
+useEffect(() => {
+  window.history.pushState(null, "", window.location.href);
 
+  const handleBackButton = () => {
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="text-sm">
+          Leave onboarding? You will need to login again.
+        </p>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+
+              localStorage.removeItem("token");
+              localStorage.removeItem("role");
+              localStorage.removeItem("userId");
+
+              navigate("/login", { replace: true });
+            }}
+            className="px-3 py-1 bg-red-500 text-white rounded"
+          >
+            Leave
+          </button>
+
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              window.history.pushState(null, "", window.location.href);
+            }}
+            className="px-3 py-1 bg-gray-500 text-white rounded"
+          >
+            Stay
+          </button>
+        </div>
+      </div>
+    ));
+  };
+
+  window.addEventListener("popstate", handleBackButton);
+
+  return () => {
+    window.removeEventListener("popstate", handleBackButton);
+  };
+}, [navigate]);
   const handleSubmit = async (e) => {
   e.preventDefault();
+   if (!formData.full_name.trim()) {
+    toast.error("Full Name is required");
+    return;
+  }
+
+  if (!formData.skills.trim()) {
+    toast.error("Skills are required");
+    return;
+  }
   try {
     console.log(formData);
     if (isEdit) {
@@ -47,7 +101,7 @@ const [originalName, setOriginalName] = useState("");
       toast.success("Profile created successfully");
     }
 
-    navigate("/dashboard");
+navigate("/dashboard", { replace: true });
 
   } catch (error) {
     toast.error("Something went wrong");
@@ -55,7 +109,7 @@ const [originalName, setOriginalName] = useState("");
 };
 
   return (
-<div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">    <form
+<div className="min-h-screen w-full flex justify-center items-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">    <form
       onSubmit={handleSubmit}
 className="animate-rise-in w-full max-w-md bg-slate-800 border border-slate-700 shadow-2xl rounded-2xl p-8 text-slate-900 flex flex-col gap-4 transition-transform duration-300 hover:scale-[1.02]"    >
       <div className="text-center mb-2">
@@ -69,7 +123,6 @@ className="animate-rise-in w-full max-w-md bg-slate-800 border border-slate-700 
   <input
     type="text"
     placeholder="Full Name"
-    required
     value={formData.full_name}
     onChange={(e) =>
       setFormData({ ...formData, full_name: e.target.value })
@@ -94,7 +147,6 @@ className="animate-rise-in w-full max-w-md bg-slate-800 border border-slate-700 
   <input
     type="text"
     placeholder="Skills"
-    required
     value={formData.skills}
     onChange={(e) =>
       setFormData({ ...formData, skills: e.target.value })

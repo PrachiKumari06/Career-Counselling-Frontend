@@ -73,16 +73,7 @@ const handleGoogleAuth = async () => {
         flex flex-col gap-4
       "
     >
-      {/* Logo / Title */}
-      <div className="text-center mb-2">
-        <h1 className="text-4xl font-bold text-white tracking-wide">
-          CareerConnect
-        </h1>
-
-        <p className="text-slate-300 mt-2 text-sm">
-          Your personalized career guidance platform
-        </p>
-      </div>
+     
 
       {/* Welcome */}
       <div className="text-center mb-4">

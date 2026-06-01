@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Axios from "../axios/api.axios.js";
 import toast from "react-hot-toast";
-import { ThumbsUp,CrossIcon, Pointer } from "lucide-react";
+import { ThumbsUp, Pointer,Delete } from "lucide-react";
 
 export default function FeedbackDrawer({ open, onClose, counselorId, onFeedbackAdded,counselorName }) {
       const [reviews, setReviews] = useState([]);
@@ -73,7 +73,7 @@ const res = await Axios.get(`/feedback/${counselorId}?filter=${filter}`);
     <h2 className="text-lg font-semibold">
       Counselor: {counselorName}
     </h2>
-    <button onClick={onClose}><CrossIcon size={16} cursor="pointer"/></button>
+    <button onClick={onClose}><Delete size={16} cursor="pointer"/></button>
   </div>
 
   {/* Rating */}
