@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React, { useState,useEffect,useRef } from "react";
 import { ChevronLeft, ChevronRight, Menu, X ,Target,Users,Brain,BriefcaseBusiness,FileUser,ChartLine} from "lucide-react";
 import { ReactTyped } from "react-typed";
@@ -205,12 +205,12 @@ const [openIndex, setOpenIndex] = useState(null);
 
   {/* BUTTONS */}
   <div className="flex gap-4 mt-6">
-    <button className="bg-white text-slate-800 px-6 py-2 rounded-full font-medium hover:bg-gray-200">
-      Get Started
+    <button className="bg-white text-slate-800 px-6 py-2 rounded-full font-medium hover:bg-gray-200 cursor-pointer">
+     <Link to="/login">Get Started</Link>
     </button>
 
     <button className="border border-slate-500 px-6 py-2 rounded-full hover:bg-slate-700">
-      Explore
+      Personalized Support
     </button>
   </div>
 

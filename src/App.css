@@ -2,7 +2,7 @@
 /* welcome section me jo wave hand h  */
 /*  this is basically wherever text is selected it will give custom color to selected part  */
 ::selection {
-  background: rgb(202, 5, 5); /* blue-700 */
+background-color: #334155;
   color: #f1f5f9;      /* slate-100 */
 }
 @keyframes wave {
