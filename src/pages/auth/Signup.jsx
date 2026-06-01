@@ -18,7 +18,7 @@ const navigate = useNavigate()
     try {
       const response = await Axios.post("/auth/signup", formData)
       toast.success("Signup successful!")
-      navigate("/")
+      navigate("/login")
       
     } catch (error) {
       console.error("Signup failed:", error.response?.data || error.message)
