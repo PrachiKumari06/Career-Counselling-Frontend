@@ -212,8 +212,6 @@ export default function BookSession() {
     ))}
   </div>
 )}
-      {/* when click on book session button, show modal or form to set session date */}
-      {selectedCounselor && (
       {/* when click on book session button, show modal with slot picker */}
       {selectedCounselor && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-40 p-4">
