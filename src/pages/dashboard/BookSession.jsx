@@ -237,11 +237,13 @@ export default function BookSession() {
                   setSelectedDate(e.target.value);
                   setSelectedSlot(null);
                 }}
-                className="w-full border border-slate-700 p-2.5 pr-10 rounded-xl text-white bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                onClick={() => inputRef.current?.showPicker()}
+                className="w-full border border-slate-700 p-2.5 pr-10 rounded-xl text-white bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
               />
               <Calendar
                 size={18}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer pointer-events-none"
+                onClick={() => inputRef.current?.showPicker()}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-white cursor-pointer transition"
               />
             </div>
 
