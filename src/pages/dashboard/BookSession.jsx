@@ -175,7 +175,7 @@ export default function BookSession() {
       type="text"
       placeholder="Search by skill or specialization..."
       onChange={(e) => setSearch(e.target.value)}
-  className="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950 transition"
+  className="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-700 transition"
     />
     </div>
   </div>
@@ -191,7 +191,7 @@ export default function BookSession() {
     type="text"
     placeholder="Search by skill or specialization..."
     onChange={(e) => setSearch(e.target.value)}
-    className="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-950 transition"
+    className="w-full pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-700 transition"
   />
 </div>
 </div>
@@ -215,19 +215,19 @@ export default function BookSession() {
       {/* when click on book session button, show modal with slot picker */}
       {selectedCounselor && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-40 p-4">
-          <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-lg shadow-2xl animate-rise-in text-white">
-            <h2 className="text-xl font-semibold mb-1">
+          <div className="bg-slate-800 border border-slate-700 p-6 rounded-2xl w-full max-w-lg shadow-2xl animate-rise-in text-white">
+            <h2 className="text-xl font-bold mb-1 tracking-wide text-white">
               Select Date & Slot
             </h2>
-            <p className="text-xs text-slate-400 mb-4">
+            <p className="text-xs text-slate-300 mb-4">
               Choose your preferred date and an available counseling time slot.
             </p>
 
             {/* 1. Date Picker */}
-            <label className="block text-xs font-medium text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-slate-200 mb-1.5">
               1. Choose Date
             </label>
-            <div className="relative mb-4">
+            <div className="relative mb-5">
               <input
                 ref={inputRef} 
                 type="date"
@@ -238,7 +238,7 @@ export default function BookSession() {
                   setSelectedSlot(null);
                 }}
                 onClick={() => inputRef.current?.showPicker()}
-                className="w-full border border-slate-700 p-2.5 pr-10 rounded-xl text-white bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
+                className="w-full border border-slate-600 p-2.5 pr-10 rounded-xl text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 cursor-pointer text-sm [&::-webkit-calendar-picker-indicator]:opacity-0"
               />
               <Calendar
                 size={18}
@@ -250,9 +250,9 @@ export default function BookSession() {
             {/* 2. Slot Selection */}
             {selectedDate && (
               <div className="mb-5">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                    <Clock size={14} className="text-blue-400" />
+                <div className="flex items-center justify-between mb-2.5">
+                  <label className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                    <Clock size={14} className="text-slate-300" />
                     2. Select Available Slot
                   </label>
                   {checkingSlots && (
@@ -262,7 +262,7 @@ export default function BookSession() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {DEFAULT_SLOTS.map((slot) => {
                     const isBooked = bookedSlots.includes(slot.time);
                     const isSelected = selectedSlot?.time === slot.time;
@@ -285,16 +285,16 @@ export default function BookSession() {
                         onClick={() => setSelectedSlot(slot)}
                         className={`py-2.5 px-3 rounded-xl text-xs font-medium flex items-center justify-between transition border ${
                           isDisabled
-                            ? "bg-slate-800/40 border-slate-800 text-slate-500 cursor-not-allowed"
+                            ? "bg-slate-900/50 border-slate-700 text-slate-500 cursor-not-allowed"
                             : isSelected
-                            ? "bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-500/20"
-                            : "bg-slate-800 border-slate-700 text-slate-200 hover:border-slate-500 cursor-pointer"
+                            ? "bg-slate-900 border-slate-400 text-white shadow-md font-semibold"
+                            : "bg-gray-200 hover:bg-gray-100 border-gray-300 text-slate-800 cursor-pointer font-medium"
                         }`}
                       >
                         <span>{slot.time}</span>
-                        {isSelected && <Check size={14} />}
+                        {isSelected && <Check size={14} className="text-white" />}
                         {isBooked && (
-                          <span className="text-[10px] text-red-400 uppercase tracking-wider">
+                          <span className="text-[10px] text-red-400 font-semibold uppercase tracking-wider">
                             Booked
                           </span>
                         )}
@@ -307,16 +307,16 @@ export default function BookSession() {
 
             {/* Summary Banner */}
             {selectedDate && selectedSlot && (
-              <div className="mb-5 p-3 rounded-xl bg-blue-950/40 border border-blue-800/50 text-xs text-blue-200 flex items-center gap-2">
-                <Check size={16} className="text-blue-400 shrink-0" />
+              <div className="mb-5 p-3 rounded-xl bg-slate-700/60 border border-slate-600 text-xs text-slate-200 flex items-center gap-2">
+                <Check size={16} className="text-emerald-400 shrink-0" />
                 <span>
-                  Booking for <strong>{new Date(selectedDate + "T00:00:00").toLocaleDateString("en-IN", { dateStyle: "medium" })}</strong> at <strong>{selectedSlot.time}</strong>
+                  Booking for <strong className="text-white">{new Date(selectedDate + "T00:00:00").toLocaleDateString("en-IN", { dateStyle: "medium" })}</strong> at <strong className="text-white">{selectedSlot.time}</strong>
                 </span>
               </div>
             )}
 
             {/* Modal Actions */}
-            <div className="flex justify-end gap-3 pt-2 border-t border-slate-800">
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-700">
               <button
                 type="button"
                 onClick={() => {
@@ -325,7 +325,7 @@ export default function BookSession() {
                   setSelectedSlot(null);
                   setBookedSlots([]);
                 }}
-                className="px-4 py-2 text-sm border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition cursor-pointer"
+                className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-slate-800 font-medium rounded-xl transition cursor-pointer"
               >
                 Cancel
               </button>
@@ -334,7 +334,7 @@ export default function BookSession() {
                 type="button"
                 disabled={loading || !selectedDate || !selectedSlot}
                 onClick={handleBookSession}
-                className="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-medium transition cursor-pointer shadow-md"
+                className="px-5 py-2 text-sm bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white border border-slate-600 font-medium rounded-xl transition cursor-pointer shadow-md"
               >
                 {loading ? "Booking..." : "Confirm Booking"}
               </button>
