@@ -2,110 +2,154 @@ import React from "react";
 import CounselorCard from "../../component/CounselorCard";
 import FeedbackDrawer from "../../component/FeedbackDrawer"; //23 march
 import Axios from "../../axios/api.axios";
-import { useEffect, useState,useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "react-hot-toast";
-import { Calendar,Search } from "lucide-react";
+import { Calendar, Search, Clock, Check } from "lucide-react";
+
+const DEFAULT_SLOTS = [
+  { time: "10:00 AM", label: "10:00 AM", hour: 10, minute: 0 },
+  { time: "11:30 AM", label: "11:30 AM", hour: 11, minute: 30 },
+  { time: "02:00 PM", label: "02:00 PM", hour: 14, minute: 0 },
+  { time: "04:00 PM", label: "04:00 PM", hour: 16, minute: 0 },
+  { time: "06:00 PM", label: "06:00 PM", hour: 18, minute: 0 },
+  { time: "07:30 PM", label: "07:30 PM", hour: 19, minute: 30 },
+];
 
 export default function BookSession() {
   const [feedbackOpen, setFeedbackOpen] = useState(false); //feedback (23 march )
-const [selectedCounselorId, setSelectedCounselorId] = useState(null);//feedback (23 march )
-const [selectedCounselorName, setSelectedCounselorName] = useState(""); //feedback (23 march )
+  const [selectedCounselorId, setSelectedCounselorId] = useState(null);//feedback (23 march )
+  const [selectedCounselorName, setSelectedCounselorName] = useState(""); //feedback (23 march )
   const [loading, setLoading] = useState(false);  //as double booking when i click Confirm multiple times quickly
   const inputRef = useRef(null);
-    const [counselors, setCounselors] = useState([]);
-      const [search, setSearch] = useState("");
-     useEffect(() => {
-      fetchCounselors();
-    }, []);
-    
-      const fetchCounselors = async () => {
-        try {
-          const res = await Axios.get("/profile/match-counselors"); 
-          console.log("API DATA:", res.data);
-          setCounselors(res.data);
-        } catch (error) {
-          console.log(error);
-        }
-      };
-     
-    const filteredCounselors = counselors.filter((c) => {
-      const profile = c.career_profiles?.[0];
-      if (!profile) return false;
-    
-      const text = (
-        profile.full_name +
-        profile.skills +
-        profile.education +
-        profile.bio+
-  String(profile.experience)
-      ).toLowerCase();
-    
-      return text.includes(search.toLowerCase());
-    });
-    // to onclick on book session button
-    const [selectedCounselor, setSelectedCounselor] = useState(null);
-const [sessionDate, setSessionDate] = useState("");
-const handleBookSession = async () => {
-if (loading) return;
+  const [counselors, setCounselors] = useState([]);
+  const [search, setSearch] = useState("");
 
-  if (!sessionDate) {
-    toast.error("Please select date and time");
-    return;
-  }
+  // Slot Availability States
+  const [selectedCounselor, setSelectedCounselor] = useState(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [checkingSlots, setCheckingSlots] = useState(false);
 
-  try {
-    setLoading(true);
-  const res = await Axios.post("/session/book", {
-    counselor_id: selectedCounselor,
-    session_date: sessionDate
+  useEffect(() => {
+    fetchCounselors();
+  }, []);
+
+  // Fetch booked slots when counselor or date changes
+  useEffect(() => {
+    if (selectedCounselor && selectedDate) {
+      fetchBookedSlots(selectedCounselor, selectedDate);
+    } else {
+      setBookedSlots([]);
+      setSelectedSlot(null);
+    }
+  }, [selectedCounselor, selectedDate]);
+
+  const fetchBookedSlots = async (counselorId, date) => {
+    try {
+      setCheckingSlots(true);
+      const res = await Axios.get(`/session/booked-slots/${counselorId}?date=${date}`);
+      setBookedSlots(res.data?.bookedSlots || []);
+    } catch (err) {
+      console.error("Error fetching booked slots:", err);
+    } finally {
+      setCheckingSlots(false);
+    }
+  };
+
+  const fetchCounselors = async () => {
+    try {
+      const res = await Axios.get("/profile/match-counselors"); 
+      console.log("API DATA:", res.data);
+      setCounselors(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const filteredCounselors = counselors.filter((c) => {
+    const profile = c.career_profiles?.[0];
+    if (!profile) return false;
+
+    const text = (
+      profile.full_name +
+      profile.skills +
+      profile.education +
+      profile.bio +
+      String(profile.experience)
+    ).toLowerCase();
+
+    return text.includes(search.toLowerCase());
   });
 
-console.log("Backend response:", res.data);
-    // FREE SESSION
-   if (!res.data.paymentRequired) {
-  toast.success(
-    "Session booked successfully! Your first session is free. Check your email."
-  );
-      setSelectedCounselor(null);
-      setSessionDate("");
-      setLoading(false);   
+  const handleBookSession = async () => {
+    if (loading) return;
+
+    if (!selectedDate || !selectedSlot) {
+      toast.error("Please select both a date and a time slot");
       return;
     }
 
-    // PAYMENT REQUIRED
-    const order = res.data.order;
+    // Combine selected date and slot into ISO string
+    const [year, month, day] = selectedDate.split("-").map(Number);
+    const dateObj = new Date(year, month - 1, day, selectedSlot.hour, selectedSlot.minute, 0);
+    const sessionDate = dateObj.toISOString();
 
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY,
-      amount: order.amount,
-      currency: order.currency,
-      order_id: order.id,
+    try {
+      setLoading(true);
+      const res = await Axios.post("/session/book", {
+        counselor_id: selectedCounselor,
+        session_date: sessionDate
+      });
 
-      handler: async function (response) {
-
-        await Axios.post("/payment/verify", {
-          ...response,
-          counselor_id: selectedCounselor,
-          session_date: sessionDate
-        });
-
-        toast.success("Payment successful. Session booked!");
-
+      console.log("Backend response:", res.data);
+      // FREE SESSION
+      if (!res.data.paymentRequired) {
+        toast.success(
+          "Session booked successfully! Your first session is free. Check your email."
+        );
         setSelectedCounselor(null);
-        setSessionDate("");
-        setLoading(false);
+        setSelectedDate("");
+        setSelectedSlot(null);
+        setBookedSlots([]);
+        setLoading(false);   
+        return;
       }
-    };
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+      // PAYMENT REQUIRED
+      const order = res.data.order;
 
-  } catch (error) {
-    setLoading(false);
-    toast.error(error.response?.data?.error || "Something went wrong");
-    
-  }
-};
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.id,
+
+        handler: async function (response) {
+          await Axios.post("/payment/verify", {
+            ...response,
+            counselor_id: selectedCounselor,
+            session_date: sessionDate
+          });
+
+          toast.success("Payment successful. Session booked!");
+
+          setSelectedCounselor(null);
+          setSelectedDate("");
+          setSelectedSlot(null);
+          setBookedSlots([]);
+          setLoading(false);
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (error) {
+      setLoading(false);
+      toast.error(error.response?.data?.error || "Something went wrong");
+    }
+  };
   return (
     <>
 {/* Section Header */}
@@ -170,46 +214,134 @@ console.log("Backend response:", res.data);
 )}
       {/* when click on book session button, show modal or form to set session date */}
       {selectedCounselor && (
-<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
-    <div className="bg-slate-800 border border-slate-300 p-6 rounded-xl w-[90%] max-w-md">
-      <h2 className="text-lg font-semibold mb-4 text-white">
-        Select Date & Time
-      </h2>
+      {/* when click on book session button, show modal with slot picker */}
+      {selectedCounselor && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-40 p-4">
+          <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-lg shadow-2xl animate-rise-in text-white">
+            <h2 className="text-xl font-semibold mb-1">
+              Select Date & Slot
+            </h2>
+            <p className="text-xs text-slate-400 mb-4">
+              Choose your preferred date and an available counseling time slot.
+            </p>
 
-    <div className="relative mb-4">
-  <input
-    ref={inputRef} 
-  type="datetime-local"
-  value={sessionDate}
-  min={new Date().toISOString().slice(0,16)}
-  onChange={(e) => setSessionDate(e.target.value)}
-    className="w-full border p-2 pr-10 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 cursor-pointer"
-  />
+            {/* 1. Date Picker */}
+            <label className="block text-xs font-medium text-slate-300 mb-1">
+              1. Choose Date
+            </label>
+            <div className="relative mb-4">
+              <input
+                ref={inputRef} 
+                type="date"
+                value={selectedDate}
+                min={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => {
+                  setSelectedDate(e.target.value);
+                  setSelectedSlot(null);
+                }}
+                className="w-full border border-slate-700 p-2.5 pr-10 rounded-xl text-white bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              />
+              <Calendar
+                size={18}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer pointer-events-none"
+              />
+            </div>
 
-  <Calendar
-    size={18}
-    className="absolute right-3 top-1/2 -translate-y-1/2 text-white cursor-pointer"
-    onClick={() => inputRef.current?.showPicker()}
-  />
-</div>
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setSelectedCounselor(null)}
-className="px-4 py-2 border bg-slate-700 hover:bg-slate-600 text-white hover:-translate-y-0.5 transition rounded cursor-pointer"        >
-          Cancel
-        </button>
+            {/* 2. Slot Selection */}
+            {selectedDate && (
+              <div className="mb-5">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
+                    <Clock size={14} className="text-blue-400" />
+                    2. Select Available Slot
+                  </label>
+                  {checkingSlots && (
+                    <span className="text-[11px] text-slate-400 animate-pulse">
+                      Checking availability...
+                    </span>
+                  )}
+                </div>
 
-        <button
-  disabled={loading}
-  onClick={handleBookSession}
-  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded border cursor-pointer disabled:opacity-50"
->
-  {loading ? "Booking..." : "Confirm"}
-</button>
-      </div>
-    </div>
-  </div>
-)}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {DEFAULT_SLOTS.map((slot) => {
+                    const isBooked = bookedSlots.includes(slot.time);
+                    const isSelected = selectedSlot?.time === slot.time;
+
+                    // Also check if selected date is today and slot hour has passed
+                    const todayStr = new Date().toISOString().slice(0, 10);
+                    const now = new Date();
+                    const isPastToday =
+                      selectedDate === todayStr &&
+                      (now.getHours() > slot.hour ||
+                        (now.getHours() === slot.hour && now.getMinutes() >= slot.minute));
+
+                    const isDisabled = isBooked || isPastToday;
+
+                    return (
+                      <button
+                        key={slot.time}
+                        type="button"
+                        disabled={isDisabled}
+                        onClick={() => setSelectedSlot(slot)}
+                        className={`py-2.5 px-3 rounded-xl text-xs font-medium flex items-center justify-between transition border ${
+                          isDisabled
+                            ? "bg-slate-800/40 border-slate-800 text-slate-500 cursor-not-allowed"
+                            : isSelected
+                            ? "bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-500/20"
+                            : "bg-slate-800 border-slate-700 text-slate-200 hover:border-slate-500 cursor-pointer"
+                        }`}
+                      >
+                        <span>{slot.time}</span>
+                        {isSelected && <Check size={14} />}
+                        {isBooked && (
+                          <span className="text-[10px] text-red-400 uppercase tracking-wider">
+                            Booked
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Summary Banner */}
+            {selectedDate && selectedSlot && (
+              <div className="mb-5 p-3 rounded-xl bg-blue-950/40 border border-blue-800/50 text-xs text-blue-200 flex items-center gap-2">
+                <Check size={16} className="text-blue-400 shrink-0" />
+                <span>
+                  Booking for <strong>{new Date(selectedDate + "T00:00:00").toLocaleDateString("en-IN", { dateStyle: "medium" })}</strong> at <strong>{selectedSlot.time}</strong>
+                </span>
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div className="flex justify-end gap-3 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCounselor(null);
+                  setSelectedDate("");
+                  setSelectedSlot(null);
+                  setBookedSlots([]);
+                }}
+                className="px-4 py-2 text-sm border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={loading || !selectedDate || !selectedSlot}
+                onClick={handleBookSession}
+                className="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-medium transition cursor-pointer shadow-md"
+              >
+                {loading ? "Booking..." : "Confirm Booking"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 <FeedbackDrawer                                    //23 march
   open={feedbackOpen}

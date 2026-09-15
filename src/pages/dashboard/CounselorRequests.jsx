@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import Axios from "../../axios/api.axios";
+import { MessageSquare } from "lucide-react";
+import ChatDrawer from "../../component/ChatDrawer";
 
 export default function CounselorRequests() {
   const [rejectReason, setRejectReason] = useState({});
@@ -10,6 +12,13 @@ export default function CounselorRequests() {
   // For approval modal
   const [selectedSession, setSelectedSession] = useState(null);
   const [meetingLink, setMeetingLink] = useState("");
+
+  // 1:1 Chat Drawer State
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatSessionId, setChatSessionId] = useState(null);
+  const [chatOtherUserName, setChatOtherUserName] = useState("");
+  const [chatOtherUserId, setChatOtherUserId] = useState(null);
+  const currentUserId = localStorage.getItem("userId");
 
   // Fetch sessions on load
   useEffect(() => {
@@ -158,16 +167,32 @@ export default function CounselorRequests() {
               </p>
             )}
 
-            {/* Approved → Allow cancel before time */}
-            {s.status === "approved" &&
-              new Date(s.session_date) > new Date() && (
+            {/* Actions for Approved Sessions */}
+            {s.status === "approved" && (
+              <div className="flex flex-wrap items-center gap-2 mt-3">
                 <button
-                  onClick={() => updateStatus(s.id, "cancelled")}
-                  className="mt-3 px-4 py-2 bg-gray-600 text-white rounded"
+                  onClick={() => {
+                    setChatSessionId(s.id);
+                    setChatOtherUserName(student?.full_name || "Student");
+                    setChatOtherUserId(s.user_id);
+                    setChatOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition cursor-pointer shadow-sm"
                 >
-                  Cancel Session
+                  <MessageSquare size={15} />
+                  Chat with Student
                 </button>
-              )}
+
+                {new Date(s.session_date) > new Date() && (
+                  <button
+                    onClick={() => updateStatus(s.id, "cancelled")}
+                    className="px-3 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm font-medium transition cursor-pointer"
+                  >
+                    Cancel Session
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Show meeting link after approval */}
             {s.status === "approved" && s.meeting_link && (
@@ -238,6 +263,16 @@ export default function CounselorRequests() {
           </div>
         </div>
       )}
+
+      {/* 1:1 Realtime Chat Drawer */}
+      <ChatDrawer
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        sessionId={chatSessionId}
+        currentUserId={currentUserId}
+        otherUserName={chatOtherUserName}
+        otherUserId={chatOtherUserId}
+      />
     </div>
   );
 }

@@ -1,7 +1,16 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import Axios from "../../axios/api.axios";
-import { User, Calendar, Video, Clock, RotateCcw, History } from "lucide-react";
+import { User, Calendar, Video, Clock, RotateCcw, History, MessageSquare, Check } from "lucide-react";
+import ChatDrawer from "../../component/ChatDrawer";
 
+const DEFAULT_SLOTS = [
+  { time: "10:00 AM", hour: 10, minute: 0 },
+  { time: "11:30 AM", hour: 11, minute: 30 },
+  { time: "02:00 PM", hour: 14, minute: 0 },
+  { time: "04:00 PM", hour: 16, minute: 0 },
+  { time: "06:00 PM", hour: 18, minute: 0 },
+  { time: "07:30 PM", hour: 19, minute: 30 },
+];
 
 export default function MySessions() {
   // Store all sessions of logged-in student
@@ -9,8 +18,16 @@ export default function MySessions() {
   const [filter, setFilter] = useState("Upcoming"); //all, pending, approved, rejected, ended
   const [selectedSession, setSelectedSession] = useState(null); //all thress to set reason update 
   const [newDate, setNewDate] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [reason, setReason] = useState("");
   const inputRef = useRef(null);
+
+  // 1:1 Chat Drawer State
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatSessionId, setChatSessionId] = useState(null);
+  const [chatOtherUserName, setChatOtherUserName] = useState("");
+  const [chatOtherUserId, setChatOtherUserId] = useState(null);
+  const currentUserId = localStorage.getItem("userId");
 
   // API call to get student's sessions
   const fetchSessions = useCallback(async () => {
@@ -182,33 +199,52 @@ export default function MySessions() {
                 </span>
               </div>
 
-              {/* Join Button if approved */}
-              {s.status === "approved" && s.meeting_link && (
-                <a
-                  href={!isPast ? s.meeting_link : "#"}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition
-      ${isPast
-                      ? "bg-gray-400 cursor-not-allowed "
-                      : "bg-slate-700 text-white hover:bg-slate-600"
-                    }
-    `}
-                >
-                  <Video size={16} />
-                  {isPast ? "Session Ended" : "Join Session"}
-                </a>
-              )}
+              {/* Action Buttons: Join, Chat, Reschedule */}
+              <div className="flex flex-wrap items-center gap-2 mt-3">
+                {/* Join Button if approved */}
+                {s.status === "approved" && s.meeting_link && (
+                  <a
+                    href={!isPast ? s.meeting_link : "#"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition
+        ${isPast
+                        ? "bg-gray-400 cursor-not-allowed "
+                        : "bg-slate-700 text-white hover:bg-slate-600"
+                      }
+      `}
+                  >
+                    <Video size={16} />
+                    {isPast ? "Session Ended" : "Join Session"}
+                  </a>
+                )}
 
-              {s.status === "approved" && !isPast && (
-                <button
-                  onClick={() => setSelectedSession(s.id)}
-                  className="mt-3 inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                >
-                  <RotateCcw size={15} />
-                  Reschedule
-                </button>
-              )}
+                {/* 1:1 Realtime Chat Button if approved */}
+                {s.status === "approved" && (
+                  <button
+                    onClick={() => {
+                      setChatSessionId(s.id);
+                      setChatOtherUserName(counselor?.full_name || "Counselor");
+                      setChatOtherUserId(s.counselor_id);
+                      setChatOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium bg-slate-800 hover:bg-slate-700 text-white transition cursor-pointer shadow-sm"
+                  >
+                    <MessageSquare size={15} />
+                    Chat
+                  </button>
+                )}
+
+                {s.status === "approved" && !isPast && (
+                  <button
+                    onClick={() => setSelectedSession(s.id)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
+                  >
+                    <RotateCcw size={15} />
+                    Reschedule
+                  </button>
+                )}
+              </div>
               {/* if session is not approved yet */}
               {s.status === "pending" && !isPast && (
                 <p className="text-xs text-yellow-700 bg-yellow-50 px-3 py-2 rounded-md mt-3 inline-flex items-center gap-1">
@@ -247,59 +283,91 @@ export default function MySessions() {
             <h3 className="mb-4 text-lg font-semibold text-white">
               Select Date & Time
             </h3>
-            <div className="relative mb-4">
+            <div className="relative mb-3">
               <input
                 ref={inputRef}
-                type="datetime-local"
+                type="date"
                 value={newDate}
-                min={new Date().toISOString().slice(0, 16)}
-                onChange={(e) => setNewDate(e.target.value)}
-                className="w-full border p-2 pr-10 rounded text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 cursor-pointer"
+                min={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => {
+                  setNewDate(e.target.value);
+                  setSelectedSlot(null);
+                }}
+                className="w-full border border-slate-600 p-2.5 pr-10 rounded-xl text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-sm"
               />
-
               <Calendar
                 size={18}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white cursor-pointer"
-                onClick={() => inputRef.current?.showPicker()}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"
               />
-
-
             </div>
+
+            {newDate && (
+              <div className="mb-4">
+                <label className="text-xs font-medium text-slate-300 block mb-2">
+                  Select New Slot:
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {DEFAULT_SLOTS.map((slot) => {
+                    const isSelected = selectedSlot?.time === slot.time;
+                    return (
+                      <button
+                        key={slot.time}
+                        type="button"
+                        onClick={() => setSelectedSlot(slot)}
+                        className={`py-2 px-2 rounded-lg text-xs font-medium border transition ${
+                          isSelected
+                            ? "bg-blue-600 border-blue-500 text-white shadow-sm"
+                            : "bg-slate-700 border-slate-600 text-slate-200 hover:border-slate-400 cursor-pointer"
+                        }`}
+                      >
+                        {slot.time}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <textarea
               placeholder="Reason for reschedule"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="border p-2 rounded w-full text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-950 cursor-pointer "
+              className="border border-slate-600 p-2.5 rounded-xl w-full text-white bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm mb-3"
             />
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="flex justify-end gap-3">
               <button
-                onClick={() => setSelectedSession(null)}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded"
+                type="button"
+                onClick={() => {
+                  setSelectedSession(null);
+                  setNewDate("");
+                  setSelectedSlot(null);
+                  setReason("");
+                }}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm transition cursor-pointer"
               >
                 Cancel
               </button>
 
               <button
+                type="button"
+                disabled={!newDate || !selectedSlot}
                 onClick={async () => {
+                  const [year, month, day] = newDate.split("-").map(Number);
+                  const dateObj = new Date(year, month - 1, day, selectedSlot.hour, selectedSlot.minute, 0);
+                  const fullDate = dateObj.toISOString();
+
                   await Axios.put(`/session/reschedule/${selectedSession}`, {
-                    session_date: newDate,
+                    session_date: fullDate,
                     reschedule_reason: reason,
                   });
-
 
                   setSelectedSession(null);
                   setReason("");
                   setNewDate("");
+                  setSelectedSlot(null);
                   fetchSessions();
                 }}
-                className={`px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded
-  ${!newDate
-                    ? "bg-gray-500 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-500"
-                  }
-`}
-                disabled={!newDate}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition cursor-pointer"
               >
                 Confirm
               </button>
@@ -308,6 +376,16 @@ export default function MySessions() {
           </div>
         </div>
       )}
+
+      {/* 1:1 Realtime Chat Drawer */}
+      <ChatDrawer
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        sessionId={chatSessionId}
+        currentUserId={currentUserId}
+        otherUserName={chatOtherUserName}
+        otherUserId={chatOtherUserId}
+      />
 
     </div>
   );
